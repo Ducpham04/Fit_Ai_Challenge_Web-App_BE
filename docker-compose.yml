@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: fit_challenge_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: fit_challenge
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p123456"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - fit_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  adminer:
+    image: adminer
+    container_name: fit_challenge_adminer
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    networks:
+      - fit_network
+
+  app:
+    build:
+      context: .
+      target: development  # QUAN TRỌNG: Dùng stage development
+    container_name: fit_challenge_app
+    ports:
+      - "8080:8080"
+      - "5005:5005"  # Debug port
+    volumes:
+      # Mount source code - KHÔNG CẦN REBUILD KHI THAY ĐỔI!
+      - ./src:/app/src:delegated
+      - ./pom.xml:/app/pom.xml:delegated
+      # Cache Maven dependencies
+      - maven-cache:/root/.m2
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/fit_challenge?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123456
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_PROFILES_ACTIVE: dev
+    networks:
+      - fit_network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  maven-cache:  # Cache Maven để tăng tốc
+
+networks:
+  fit_network:
+    driver: bridge
