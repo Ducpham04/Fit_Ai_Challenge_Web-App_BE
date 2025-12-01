@@ -74,14 +74,20 @@ public class SecurityConfig {
                                 "/api/nutrition-plans/**",
                                 "/api/admin/meals/**",
                                 "/api/files/**",
-                                "/api/foods/**",
+                                "/api/admin/foods/**",
+                                "/api/foods",
                                 "/api/meal-foods/**",
                                 "/api/user-nutrition/**",
                                 "/api/reward-redemptions/**",
-                                "/api/rewards/**",
+                                "/api/admin/rewards/**",
                                 "/api/transactions/**",
+                                "/api/user/training-details/**",
+
                                 "uploads/**"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/admin/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
 

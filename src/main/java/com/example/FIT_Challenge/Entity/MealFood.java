@@ -28,5 +28,8 @@ public class MealFood {
 
     @Column(name = "quantity_g", nullable = false)
     private Integer quantityG;
+
+
+
 }
 

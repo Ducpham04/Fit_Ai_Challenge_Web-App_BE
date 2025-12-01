@@ -9,8 +9,15 @@ import lombok.*;
 @Builder
 public class MealFoodResponse {
     private Long mfId;
-    private Long mealId;
+
     private Long foodId;
+    private String foodName;
     private Integer quantityG;
+
+    // Dinh duõng
+    private Integer totalCalories ;
+    private Double totalProtein ;
+    private Double totalCarbs ;
+    private Double totalFat ;
 }
 

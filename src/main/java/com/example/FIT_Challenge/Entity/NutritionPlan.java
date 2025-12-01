@@ -1,16 +1,21 @@
 package com.example.FIT_Challenge.Entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 
 @Table(name = "nutrition_plans")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class NutritionPlan {
 
     // 🆔 Mã kế hoạch dinh dưỡng (tự động tăng)
@@ -55,20 +60,10 @@ public class NutritionPlan {
     // 🕒 Ngày tạo kế hoạch (tự động lưu thời gian hiện tại)
     @Column(name = "created_at")
     private OffsetDateTime createdAt = OffsetDateTime.now();
+    @OneToMany(mappedBy = "nutritionPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Meal> meals;
 
-    // 🧱 Constructors
-    public NutritionPlan() {}
 
-    public NutritionPlan(Goals goal, String title, String description, Integer caloriesPerDay, Integer proteinG, Integer carbsG, Integer fatG, String status) {
-        this.goal = goal;
-        this.title = title;
-        this.description = description;
-        this.caloriesPerDay = caloriesPerDay;
-        this.proteinG = proteinG;
-        this.carbsG = carbsG;
-        this.fatG = fatG;
-        this.status = status;
-    }
 
 
 }

@@ -12,7 +12,6 @@ import com.example.FIT_Challenge.repository.MealFoodRepository;
 import com.example.FIT_Challenge.service.MealFoodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 @Service
 @RequiredArgsConstructor
 public class MealFoodServiceImpl implements MealFoodService {
@@ -23,8 +22,10 @@ public class MealFoodServiceImpl implements MealFoodService {
 
     @Override
     public NotificationResponse createMealFood(MealFoodRequest request) {
+
         Meal meal = mealRepository.findById(request.getMealId())
                 .orElseThrow(() -> new RuntimeException("Meal not found"));
+
         Food food = foodRepository.findById(request.getFoodId())
                 .orElseThrow(() -> new RuntimeException("Food not found"));
 
@@ -32,19 +33,13 @@ public class MealFoodServiceImpl implements MealFoodService {
         mf.setMeal(meal);
         mf.setFood(food);
         mf.setQuantityG(request.getQuantityG());
+
         mealFoodRepository.save(mf);
 
-        MealFoodResponse dto = new MealFoodResponse(
-                mf.getMfId(),
-                meal.getMealId(),
-                food.getFoodId(),
-                mf.getQuantityG()
-
-        );
+        MealFoodResponse dto = mapToResponse(mf);
 
         return new NotificationResponse(true, "Created successfully", dto);
     }
-
 
     @Override
     public NotificationResponse updateMealFood(Long id, MealFoodRequest request) {
@@ -53,31 +48,45 @@ public class MealFoodServiceImpl implements MealFoodService {
 
         Meal meal = mealRepository.findById(request.getMealId())
                 .orElseThrow(() -> new RuntimeException("Meal not found"));
+
         Food food = foodRepository.findById(request.getFoodId())
                 .orElseThrow(() -> new RuntimeException("Food not found"));
 
         mf.setMeal(meal);
         mf.setFood(food);
         mf.setQuantityG(request.getQuantityG());
+
         mealFoodRepository.save(mf);
 
-        MealFoodResponse dto = new MealFoodResponse(
-                mf.getMfId(),
-                meal.getMealId(),
-                food.getFoodId(),
-                mf.getQuantityG()
-
-        );
+        MealFoodResponse dto = mapToResponse(mf);
 
         return new NotificationResponse(true, "MealFood updated successfully", dto);
     }
 
     @Override
     public NotificationResponse deleteMealFood(Long id) {
-        if(!mealFoodRepository.existsById(id)){
+        if (!mealFoodRepository.existsById(id)) {
             return new NotificationResponse(false, "MealFood not found");
         }
+
         mealFoodRepository.deleteById(id);
         return new NotificationResponse(true, "MealFood deleted successfully");
+    }
+
+    // Phương thức tiện ích để map Entity -> DTO
+    private MealFoodResponse mapToResponse(MealFood mf) {
+        Food food = mf.getFood();
+        int quantity = mf.getQuantityG();
+
+        return MealFoodResponse.builder()
+                .mfId(mf.getMfId())
+                .foodId(food.getFoodId())
+                .foodName(food.getName())
+                .quantityG(quantity)
+                .totalCalories(food.getCaloriesPer100g() * quantity / 100)
+                .totalProtein(food.getProteinPer100g() * quantity / 100.0)
+                .totalCarbs(food.getCarbsPer100g() * quantity / 100.0)
+                .totalFat(food.getFatPer100g() * quantity / 100.0)
+                .build();
     }
 }

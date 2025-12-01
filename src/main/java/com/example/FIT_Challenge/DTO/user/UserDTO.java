@@ -2,6 +2,8 @@ package com.example.FIT_Challenge.DTO.user;
 
 import lombok.*;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -11,4 +13,7 @@ public class UserDTO {
  private  String email ;
     private  String fullName ;
     private String role ;
+    private String linkImage ;
+    private Date createdAt ;
+    private String status ;
 }

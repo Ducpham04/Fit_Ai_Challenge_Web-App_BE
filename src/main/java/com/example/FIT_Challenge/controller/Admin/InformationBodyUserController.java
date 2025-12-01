@@ -22,7 +22,7 @@ public class InformationBodyUserController {
     }
 
     // 🔹 [GET] Lấy danh sách theo userId
-    @GetMapping("/user/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<NotificationResponse> getInformationByUserId(@PathVariable Long userId) {
         NotificationResponse response = informationBodyUserService.findByUserId(userId);
         return ResponseEntity.ok(response);

@@ -16,25 +16,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequestAdmin request) {
         userService.register(request);
         return ResponseEntity.ok("User registered successfully!");
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
         JwtResponse jwtResponse = userService.login(request);
         System.out.println("Ddax vaof");
         return ResponseEntity.ok(jwtResponse);
     }
-    @GetMapping("/users")
+    @GetMapping("/admin/users")
     public ResponseEntity<NotificationResponse> getAllUsers() {
         NotificationResponse response = userService.getAllUsers();
         System.out.println("Da vao get all users");
@@ -53,7 +53,7 @@ public class AuthController {
         }
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/me")
+    @GetMapping("/auth/me")
     public ResponseEntity<UserDTO> getCurrentUser(
             @AuthenticationPrincipal UserDetails userDetails) {
 

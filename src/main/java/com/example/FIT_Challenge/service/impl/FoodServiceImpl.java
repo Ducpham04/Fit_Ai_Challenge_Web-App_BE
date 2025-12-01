@@ -22,12 +22,12 @@ public class FoodServiceImpl implements FoodService {
 
     private FoodResponse toResponse(Food food){
         return FoodResponse.builder()
-                .foodId(food.getFoodId())
+                .id(food.getFoodId())
                 .name(food.getName())
-                .caloriesPer100g(food.getCaloriesPer100g())
-                .proteinPer100g(food.getProteinPer100g())
-                .carbsPer100g(food.getCarbsPer100g())
-                .fatPer100g(food.getFatPer100g())
+                .calories(food.getCaloriesPer100g())
+                .protein(food.getProteinPer100g())
+                .carbs(food.getCarbsPer100g())
+                .fat(food.getFatPer100g())
                 .notes(food.getNotes())
                 .build();
     }
@@ -36,10 +36,10 @@ public class FoodServiceImpl implements FoodService {
     public NotificationResponse createFood(FoodRequest request) {
         Food food = Food.builder()
                 .name(request.getName())
-                .caloriesPer100g(request.getCaloriesPer100g())
-                .proteinPer100g(request.getProteinPer100g())
-                .carbsPer100g(request.getCarbsPer100g())
-                .fatPer100g(request.getFatPer100g())
+                .caloriesPer100g(request.getCalories())
+                .proteinPer100g(request.getProtein())
+                .carbsPer100g(request.getCarbs())
+                .fatPer100g(request.getFat())
                 .notes(request.getNotes())
                 .build();
         foodRepository.save(food);
@@ -51,10 +51,10 @@ public class FoodServiceImpl implements FoodService {
         Food food = foodRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Food not found with ID: " + id));
         food.setName(request.getName());
-        food.setCaloriesPer100g(request.getCaloriesPer100g());
-        food.setProteinPer100g(request.getProteinPer100g());
-        food.setCarbsPer100g(request.getCarbsPer100g());
-        food.setFatPer100g(request.getFatPer100g());
+        food.setCaloriesPer100g(request.getCalories());
+        food.setProteinPer100g(request.getProtein());
+        food.setCarbsPer100g(request.getCarbs());
+        food.setFatPer100g(request.getFat());
         food.setNotes(request.getNotes());
         foodRepository.save(food);
         return new NotificationResponse(true, "Food updated successfully", toResponse(food));

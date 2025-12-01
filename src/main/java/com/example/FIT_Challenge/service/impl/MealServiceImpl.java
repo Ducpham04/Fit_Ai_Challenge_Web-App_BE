@@ -1,16 +1,23 @@
 package com.example.FIT_Challenge.service.impl;
 
-import com.example.FIT_Challenge.Entity.Meal;
-import com.example.FIT_Challenge.Entity.NutritionPlan;
 import com.example.FIT_Challenge.DTO.MealDTO.MealRequest;
 import com.example.FIT_Challenge.DTO.MealDTO.MealResponse;
+import com.example.FIT_Challenge.DTO.MealFoodDTO.MealFoodRequest;
+import com.example.FIT_Challenge.DTO.MealFoodDTO.MealFoodResponse;
+import com.example.FIT_Challenge.Entity.Food;
+import com.example.FIT_Challenge.Entity.Meal;
+import com.example.FIT_Challenge.Entity.MealFood;
+import com.example.FIT_Challenge.Entity.NutritionPlan;
 import com.example.FIT_Challenge.config.NotificationResponse;
+import com.example.FIT_Challenge.repository.FoodRepository;
+import com.example.FIT_Challenge.repository.MealFoodRepository;
 import com.example.FIT_Challenge.repository.MealRepository;
 import com.example.FIT_Challenge.repository.NutritionPlanRepository;
 import com.example.FIT_Challenge.service.MealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,19 +27,45 @@ public class MealServiceImpl implements MealService {
 
     private final MealRepository mealRepository;
     private final NutritionPlanRepository nutritionPlanRepository;
+    private final MealFoodRepository mealFoodRepository;
+    private final FoodRepository foodRepository;
 
-    private MealResponse toResponse(Meal meal) {
+    // ===================== Mapping Entity -> DTO =====================
+    private MealFoodResponse mapMealFoodToResponse(MealFood mf) {
+        Food food = mf.getFood();
+        int quantity = mf.getQuantityG();
+        return MealFoodResponse.builder()
+                .mfId(mf.getMfId())
+                .foodId(food.getFoodId())
+                .foodName(food.getName())
+                .quantityG(quantity)
+                .totalCalories(food.getCaloriesPer100g() * quantity / 100)
+                .totalProtein(food.getProteinPer100g() * quantity / 100.0)
+                .totalCarbs(food.getCarbsPer100g() * quantity / 100.0)
+                .totalFat(food.getFatPer100g() * quantity / 100.0)
+                .build();
+    }
+
+    private MealResponse mapMealToResponse(Meal meal) {
         MealResponse dto = new MealResponse();
         dto.setMealId(meal.getMealId());
         dto.setNutritionPlanId(meal.getNutritionPlan().getPlanId());
-        dto.setNutritionPlanTitle(meal.getNutritionPlan().getTitle());
         dto.setMealType(meal.getMealType());
+        dto.setDayNumber(meal.getDay());
         dto.setName(meal.getName());
         dto.setDescription(meal.getDescription());
         dto.setCaloriesEstimate(meal.getCaloriesEstimate());
+
+        List<MealFoodResponse> foods = mealFoodRepository.findByMealMealId(meal.getMealId())
+                .stream()
+                .map(this::mapMealFoodToResponse)
+                .collect(Collectors.toList());
+        dto.setFoods(foods);
+
         return dto;
     }
 
+    // ===================== CRUD =====================
     @Override
     public NotificationResponse createMeal(MealRequest request) {
         return nutritionPlanRepository.findById(request.getNutritionPlanId())
@@ -42,9 +75,35 @@ public class MealServiceImpl implements MealService {
                     meal.setMealType(request.getMealType());
                     meal.setName(request.getName());
                     meal.setDescription(request.getDescription());
-                    meal.setCaloriesEstimate(request.getCaloriesEstimate());
-                    Meal saved = mealRepository.save(meal);
-                    return new NotificationResponse(true, "Meal created successfully", toResponse(saved));
+
+                    // Tạo Meal trước để có ID
+                    Meal savedMeal = mealRepository.save(meal);
+
+                    // Xử lý MealFood nếu có
+                    List<MealFoodRequest> foodRequests = request.getFoods();
+                    List<MealFood> mealFoods = new ArrayList<>();
+                    int totalCalories = 0;
+
+                    if (foodRequests != null) {
+                        for (MealFoodRequest mfReq : foodRequests) {
+                            Food food = foodRepository.findById(mfReq.getFoodId())
+                                    .orElseThrow(() -> new RuntimeException("Food not found with ID: " + mfReq.getFoodId()));
+
+                            MealFood mf = new MealFood();
+                            mf.setMeal(savedMeal);
+                            mf.setFood(food);
+                            mf.setQuantityG(mfReq.getQuantityG());
+
+                            totalCalories += food.getCaloriesPer100g() * mfReq.getQuantityG() / 100;
+                            mealFoods.add(mf);
+                        }
+                        mealFoodRepository.saveAll(mealFoods);
+                    }
+
+                    savedMeal.setCaloriesEstimate(totalCalories);
+                    mealRepository.save(savedMeal);
+
+                    return new NotificationResponse(true, "Meal created successfully", mapMealToResponse(savedMeal));
                 })
                 .orElseGet(() -> new NotificationResponse(false, "Nutrition plan not found with ID: " + request.getNutritionPlanId()));
     }
@@ -60,10 +119,34 @@ public class MealServiceImpl implements MealService {
                     if (request.getMealType() != null) meal.setMealType(request.getMealType());
                     if (request.getName() != null) meal.setName(request.getName());
                     if (request.getDescription() != null) meal.setDescription(request.getDescription());
-                    if (request.getCaloriesEstimate() != null) meal.setCaloriesEstimate(request.getCaloriesEstimate());
+
+                    // Xử lý MealFood: xóa cũ, thêm mới
+                    List<MealFoodRequest> foodRequests = request.getFoods();
+                    if (foodRequests != null) {
+                        List<MealFood> existing = mealFoodRepository.findByMealMealId(meal.getMealId());
+                        mealFoodRepository.deleteAll(existing);
+
+                        List<MealFood> mealFoods = new ArrayList<>();
+                        int totalCalories = 0;
+
+                        for (MealFoodRequest mfReq : foodRequests) {
+                            Food food = foodRepository.findById(mfReq.getFoodId())
+                                    .orElseThrow(() -> new RuntimeException("Food not found with ID: " + mfReq.getFoodId()));
+
+                            MealFood mf = new MealFood();
+                            mf.setMeal(meal);
+                            mf.setFood(food);
+                            mf.setQuantityG(mfReq.getQuantityG());
+
+                            totalCalories += food.getCaloriesPer100g() * mfReq.getQuantityG() / 100;
+                            mealFoods.add(mf);
+                        }
+                        mealFoodRepository.saveAll(mealFoods);
+                        meal.setCaloriesEstimate(totalCalories);
+                    }
 
                     Meal updated = mealRepository.save(meal);
-                    return new NotificationResponse(true, "Meal updated successfully", toResponse(updated));
+                    return new NotificationResponse(true, "Meal updated successfully", mapMealToResponse(updated));
                 })
                 .orElseGet(() -> new NotificationResponse(false, "Meal not found with ID: " + id));
     }
@@ -73,6 +156,8 @@ public class MealServiceImpl implements MealService {
         if (!mealRepository.existsById(id)) {
             return new NotificationResponse(false, "Meal not found with ID: " + id);
         }
+        List<MealFood> mealFoods = mealFoodRepository.findByMealMealId(id);
+        mealFoodRepository.deleteAll(mealFoods);
         mealRepository.deleteById(id);
         return new NotificationResponse(true, "Meal deleted successfully");
     }
@@ -80,7 +165,7 @@ public class MealServiceImpl implements MealService {
     @Override
     public NotificationResponse getMealById(Long id) {
         return mealRepository.findById(id)
-                .map(meal -> new NotificationResponse(true, "Success", toResponse(meal)))
+                .map(meal -> new NotificationResponse(true, "Success", mapMealToResponse(meal)))
                 .orElseGet(() -> new NotificationResponse(false, "Meal not found with ID: " + id));
     }
 
@@ -88,7 +173,7 @@ public class MealServiceImpl implements MealService {
     public NotificationResponse getAllMeals() {
         List<MealResponse> list = mealRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(this::mapMealToResponse)
                 .collect(Collectors.toList());
         return new NotificationResponse(true, "All meals retrieved", list);
     }
@@ -99,7 +184,7 @@ public class MealServiceImpl implements MealService {
         if (meals.isEmpty()) {
             return new NotificationResponse(false, "No meals found for plan ID: " + planId);
         }
-        List<MealResponse> list = meals.stream().map(this::toResponse).collect(Collectors.toList());
+        List<MealResponse> list = meals.stream().map(this::mapMealToResponse).collect(Collectors.toList());
         return new NotificationResponse(true, "Meals retrieved for plan ID: " + planId, list);
     }
 }
