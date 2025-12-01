@@ -3,6 +3,8 @@ package com.example.FIT_Challenge.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "foods")
 @Getter
@@ -35,4 +37,7 @@ public class Food {
 
 
     private String notes;
+    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MealFood> mealFoods;
+
 }

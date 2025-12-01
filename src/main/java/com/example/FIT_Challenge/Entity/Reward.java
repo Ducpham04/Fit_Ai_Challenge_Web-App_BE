@@ -5,6 +5,7 @@ package com.example.FIT_Challenge.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.OffsetDateTime;
+import java.util.Date;
 
 /**
  * Bảng rewards:
@@ -31,7 +32,7 @@ public class Reward {
      * 🖼️ Link hình ảnh đại diện phần thưởng (tùy chọn)
      */
     @Column(name = "link_image")
-    private String linkImange;
+    private String linkImage;
     /**
      * 🎁 Tên phần thưởng (bắt buộc)
      */
@@ -48,7 +49,7 @@ public class Reward {
     /**
      * 💰 Số điểm cần để đổi phần thưởng (bắt buộc)
      */
-    @Column(name = "cost_points", nullable = false)
+    @Column(name = "cost_points")
     private Integer costPoints;
 
     /**
@@ -68,5 +69,9 @@ public class Reward {
      */
     @Column(name = "created_at")
     private OffsetDateTime createdAt = OffsetDateTime.now();
+    @Column(name = "expire_At")
+    private Date expireAt;
+    @Column (name = "Claimed")
+    private Integer claimed =0 ;
 }
 

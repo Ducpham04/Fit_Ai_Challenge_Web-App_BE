@@ -35,11 +35,11 @@ public class ChallengeServiceImpl implements ChallengeService {
                 return new NotificationResponse(false, "Challenge title already exists");
             }
 
-            Goals goal = goalRepository.findById(dto.getGoalId())
-                    .orElseThrow(() -> new RuntimeException("Goal not found"));
+
+
 
             Challenges challenge = new Challenges();
-            challenge.setGoal(goal);
+
             challenge.setTitle(dto.getTitle().trim());
             challenge.setDescription(dto.getDescription());
             challenge.setDifficult(Challenges.DifficultLevel.valueOf(dto.getDifficult()));

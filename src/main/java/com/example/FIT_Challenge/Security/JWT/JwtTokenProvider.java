@@ -18,26 +18,36 @@ public class JwtTokenProvider {
     private long jwtExpiration;
 
     // ✅ Tạo token
-    public String generateToken(String username) {
+    public String generateToken(String email, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
-                .setSubject(username)            // Người dùng
-                .setIssuedAt(now)                // Ngày phát hành
-                .setExpiration(expiryDate)       // Ngày hết hạn
-                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))  // Ký token bằng khóa bí mật
+                .setSubject(email)
+                .claim("role", role)   // 🔥 THÊM ROLE VÀO TOKEN
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                 .compact();
     }
 
     // ✅ Lấy username từ token
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.get("role", String.class);
     }
 
     // ✅ Kiểm tra token hợp lệ

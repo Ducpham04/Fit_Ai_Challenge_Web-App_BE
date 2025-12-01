@@ -12,6 +12,6 @@ public interface GoalService {
     List<goalsDTOpayload> getGoals() ;
     NotificationResponse createGoal(goalsDTOpayload goalsDTOpayload , MultipartFile image) ;
     NotificationResponse delete(Long id) ;
-    NotificationResponse update(Long id, goalsDTOpayload goalsDTOpayload) ;
+    NotificationResponse update(Long id, goalsDTOpayload goalsDTOpayload, MultipartFile image) ;
 
 }

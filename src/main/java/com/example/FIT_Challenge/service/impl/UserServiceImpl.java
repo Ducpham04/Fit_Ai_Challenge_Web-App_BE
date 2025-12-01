@@ -4,9 +4,11 @@ import com.example.FIT_Challenge.DTO.user.JwtResponse;
 import com.example.FIT_Challenge.DTO.user.LoginRequest;
 import com.example.FIT_Challenge.DTO.user.RegisterRequestAdmin;
 import com.example.FIT_Challenge.DTO.user.UserDTO;
+import com.example.FIT_Challenge.Entity.Role;
 import com.example.FIT_Challenge.Entity.User;
 import com.example.FIT_Challenge.Security.JWT.JwtTokenProvider;
 import com.example.FIT_Challenge.config.NotificationResponse;
+import com.example.FIT_Challenge.repository.RoleRepository;
 import com.example.FIT_Challenge.repository.User.UserRepository;
 import com.example.FIT_Challenge.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,17 +29,33 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-
+    private final RoleRepository roleRepository;
     @Override
-    public  void register(RegisterRequestAdmin registerRequestAdmin){
-        if(userRepository.existsByEmail(registerRequestAdmin.getEmail())){
-            throw new RuntimeException("User already exists");
+    public void register(RegisterRequestAdmin registerRequestAdmin) {
+        // 1. Check email tồn tại
+        if(userRepository.existsByEmail(registerRequestAdmin.getEmail())) {
+            throw new RuntimeException("Email đã tồn tại!");
         }
+
+
+        // 3. Lấy role theo roleId từ request, default = 1 nếu null
+        Role role = roleRepository.findById(registerRequestAdmin.getRoleId() != null ? registerRequestAdmin.getRoleId() : 2)
+                .orElseThrow(() -> new RuntimeException("Role không tồn tại"));
+
+        // 4. Tạo user mới
         User user = new User();
+        user.setUserName(registerRequestAdmin.getFullName()); // bắt buộc không trùng
+        System.out.println(registerRequestAdmin.getFullName());
         user.setEmail(registerRequestAdmin.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequestAdmin.getPassword()));
+        user.setRole(role);
+       // user.setLinkImage(registerRequestAdmin.getLinkImage());
+        user.setCreateAt(new java.util.Date());
+
+        // 5. Save vào DB
         userRepository.save(user);
     }
+
 
     @Override
     public JwtResponse login(LoginRequest loginRequest) {
@@ -45,7 +63,7 @@ public class UserServiceImpl implements UserService {
         if(!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())){
             throw new RuntimeException("Invalid password");
         }
-        String token = jwtTokenProvider.generateToken(user.get().getEmail());
+        String token = jwtTokenProvider.generateToken(user.get().getEmail(), user.get().getRole().getRoleName());
         System.out.println(token);
         return new JwtResponse(token);
     }
@@ -73,7 +91,10 @@ public class UserServiceImpl implements UserService {
             dto.setId(user.getId());
             dto.setEmail(user.getEmail());
             dto.setFullName(user.getUserName());
+            dto.setLinkImage(user.getLinkImage());
+            dto.setCreatedAt(user.getCreateAt());
             dto.setRole(user.getRole().getRoleName());
+            dto.setStatus(user.getStatus());
 
     return dto ;
         }).collect(Collectors.toList()); // ẩn password trước khi trả về
@@ -91,6 +112,7 @@ public class UserServiceImpl implements UserService {
             dto.setEmail(user.getEmail());
             dto.setFullName(user.getUserName());
             dto.setRole(user.getRole().getRoleName());
+            dto.setStatus(user.getStatus());
             return dto;
         }).orElseThrow(() -> new RuntimeException("User not found"));
     }
@@ -104,7 +126,10 @@ public class UserServiceImpl implements UserService {
                 user.getId(),
                 user.getEmail(),
                 user.getUserName(),
-                user.getRole().getRoleName()
+                user.getRole().getRoleName(),
+                user.getLinkImage(),
+                user.getCreateAt(),
+                user.getStatus()
         );
 
     }

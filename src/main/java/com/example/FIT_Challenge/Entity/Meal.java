@@ -5,6 +5,8 @@ package com.example.FIT_Challenge.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 /**
  * 🥗 Entity Meal
  * Đại diện cho bảng "meals" trong cơ sở dữ liệu.
@@ -58,6 +60,8 @@ public class Meal {
      * 📖 description: Mô tả chi tiết món ăn
      * Dùng kiểu TEXT để lưu nội dung dài (công thức, thành phần, hướng dẫn...).
      */
+    @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MealFood> mealFoods;
 
     private String description;
 
@@ -67,4 +71,7 @@ public class Meal {
      */
     @Column(name = "calories_estimate")
     private Integer caloriesEstimate;
+
+    @Column(name="Day_Number")
+    private Integer day;
 }

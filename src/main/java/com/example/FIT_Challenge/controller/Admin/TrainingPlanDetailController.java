@@ -35,7 +35,7 @@ public class TrainingPlanDetailController {
         return ResponseEntity.ok(trainingPlanDetailService.getAllDetails());
     }
 
-    @GetMapping("/plan/{planId}")
+    @GetMapping("/{planId}")
     public ResponseEntity<NotificationResponse> getByPlan(@PathVariable Long planId) {
         return ResponseEntity.ok(trainingPlanDetailService.getDetailsByPlanId(planId));
     }

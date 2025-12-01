@@ -8,11 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class FoodResponse {
-    private Long foodId;
+    private Long id;
     private String name;
-    private Integer caloriesPer100g;
-    private Double proteinPer100g;
-    private Double carbsPer100g;
-    private Double fatPer100g;
+    private Integer calories;
+    private Double protein;
+    private Double carbs;
+    private Double fat;
     private String notes;
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -31,8 +32,16 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<InformationBodyUser> informationbodyuser;
 
-    @OneToOne
-    @JoinColumn(name="Role_id", unique=true)
+    @ManyToOne
+    @JoinColumn(name="Role_id")
     private Role role;
+
+
+    @Column(name="Link_Image")
+    private String linkImage ;
+    private Date CreateAt ;
+
+    @Column(name="Is_Active")
+    private String status ;
 }
 

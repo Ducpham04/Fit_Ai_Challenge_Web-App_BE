@@ -3,11 +3,12 @@ package com.example.FIT_Challenge.Entity;
 import com.example.FIT_Challenge.Entity.TrainingPlan;
 import com.example.FIT_Challenge.Entity.User;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-
+@Data
 @Setter
 @Getter
 @Entity

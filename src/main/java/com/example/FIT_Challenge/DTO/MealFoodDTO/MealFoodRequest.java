@@ -11,4 +11,5 @@ public class MealFoodRequest {
     private Long mealId;
     private Long foodId;
     private Integer quantityG;
+
 }

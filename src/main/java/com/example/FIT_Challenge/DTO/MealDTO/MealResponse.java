@@ -1,14 +1,18 @@
 package com.example.FIT_Challenge.DTO.MealDTO;
 
+import com.example.FIT_Challenge.DTO.MealFoodDTO.MealFoodResponse;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class MealResponse {
     private Long mealId;
     private Long nutritionPlanId;
-    private String nutritionPlanTitle; // tên kế hoạch
     private String mealType;
     private String name;
+    private Integer dayNumber;
     private String description;
     private Integer caloriesEstimate;
+    private List<MealFoodResponse> foods ;
 }

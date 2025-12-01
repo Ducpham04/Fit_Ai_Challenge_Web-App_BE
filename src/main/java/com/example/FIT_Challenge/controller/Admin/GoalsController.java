@@ -3,6 +3,8 @@ package com.example.FIT_Challenge.controller.Admin;
 import com.example.FIT_Challenge.DTO.goalsDTO.goalsDTOpayload;
 import com.example.FIT_Challenge.config.NotificationResponse;
 import com.example.FIT_Challenge.service.GoalService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,17 +53,29 @@ public class GoalsController {
     }
 
     // ✅ UPDATE (PUT)
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NotificationResponse> updateGoal(
             @PathVariable Long id,
-            @RequestBody goalsDTOpayload goal) {
+            @RequestPart("data") String data,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        NotificationResponse response = goalService.update(id, goal);
-        if (!response.isSuccess()) {
-            return ResponseEntity.badRequest().body(response);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            goalsDTOpayload dto = mapper.readValue(data, goalsDTOpayload.class);
+
+            NotificationResponse response = goalService.update(id, dto, image);
+
+            if (!response.isSuccess()) {
+                return ResponseEntity.badRequest().body(response);
+            }
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new NotificationResponse(false, "Invalid request: " + e.getMessage()));
         }
-        return ResponseEntity.ok(response);
     }
+
 
     // ✅ DELETE
     @DeleteMapping("/{id}")

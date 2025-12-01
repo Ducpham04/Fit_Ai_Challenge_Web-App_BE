@@ -78,25 +78,43 @@ public class GoalServiceImpl implements GoalService {
     }
 
     @Override
-    public NotificationResponse update(Long id, goalsDTOpayload dto) {
-        if (id == null) return new NotificationResponse(false, "Goal ID cannot be null");
+    public NotificationResponse update(Long id, goalsDTOpayload dto, MultipartFile image) {
+
+        if (id == null)
+            return new NotificationResponse(false, "Goal ID cannot be null");
 
         Goals existingGoal = goalRepository.findById(id).orElse(null);
-        if (existingGoal == null) return new NotificationResponse(false, "Goal not found");
+        if (existingGoal == null)
+            return new NotificationResponse(false, "Goal not found");
 
-        if (dto.getName() == null || dto.getName().trim().isEmpty())
-            return new NotificationResponse(false, "Goal name cannot be empty");
 
+        // Check duplicate name
         if (!existingGoal.getName().equalsIgnoreCase(dto.getName())
-                && goalRepository.existsByName(dto.getName()))
+                && goalRepository.existsByName(dto.getName())) {
             return new NotificationResponse(false, "Goal name already exists");
+        }
 
-        existingGoal.setName(dto.getName().trim());
-        existingGoal.setImageLink(dto.getImageLink().trim());
-        existingGoal.setDescription(dto.getDescription().trim());
+        // ✔ 1. HANDLE IMAGE UPDATE LOGIC
+        if (image != null && !image.isEmpty()) {
+            // Upload ảnh mới
+            String imagePath = fileChallengeService.uploadFile(image);
+            existingGoal.setImageLink(imagePath);
+        }
+        // Nếu không có ảnh mới → giữ nguyên ảnh cũ, KHÔNG ĐỤNG DTO.getImageLink()
+
+        // ✔ 2. UPDATE TEXT FIELDS SAFELY
+        if (dto.getDescription() != null)
+            existingGoal.setDescription(dto.getDescription().trim());
+        if( dto.getName() != null){
+            existingGoal.setName(dto.getName().trim());
+        }
+
+
+        // Save
         goalRepository.save(existingGoal);
 
         logger.info("Updated goal with ID {}", id);
         return new NotificationResponse(true, "Goal updated successfully", existingGoal);
     }
+
 }
