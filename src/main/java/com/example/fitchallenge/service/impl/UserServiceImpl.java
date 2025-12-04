@@ -21,10 +21,14 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +43,13 @@ public class UserServiceImpl implements UserService {
     private final UserNutritionRepository userNutritionRepository;
     private final TrainingPlanDetailRepository trainingPlanDetailRepository;
     @Override
-    public void register(RegisterRequestAdmin registerRequestAdmin) {
+    public JwtResponse register(RegisterRequestAdmin registerRequestAdmin) {
         // 1. Check email tồn tại
         if(userRepository.existsByEmail(registerRequestAdmin.getEmail())) {
             throw new RuntimeException("Email đã tồn tại!");
         }
 
-
-        // 3. Lấy role theo roleId từ request, default = 1 nếu null
+        // 3. Lấy role theo roleId từ request, default = 2 (USER) nếu null
         Role role = roleRepository.findById(registerRequestAdmin.getRoleId() != null ? registerRequestAdmin.getRoleId() : 2)
                 .orElseThrow(() -> new RuntimeException("Role không tồn tại"));
 
@@ -58,22 +61,58 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(registerRequestAdmin.getPassword()));
         user.setRole(role);
        // user.setLinkImage(registerRequestAdmin.getLinkImage());
-        user.setCreateAt(new java.util.Date());
+        Date now = new java.util.Date();
+        user.setCreateAt(now);
+        user.setUpdatedAt(now);
+        user.setLastLoginAt(now);
 
         // 5. Save vào DB
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        
+        // 6. Generate tokens and return response
+        String token = jwtTokenProvider.generateToken(savedUser.getEmail(), savedUser.getRole().getRoleName());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail());
+        
+        JwtResponse.UserInfoDTO userInfo = new JwtResponse.UserInfoDTO(
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getUserName(),
+                savedUser.getRole().getRoleName()
+        );
+        
+        return new JwtResponse(token, refreshToken, userInfo);
     }
 
 
     @Override
     public JwtResponse login(LoginRequest loginRequest) {
-        Optional<User> user  = userRepository.findByEmail((loginRequest.getEmail())) ;
-        if(!passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())){
+        Optional<User> userOpt = userRepository.findByEmail(loginRequest.getEmail());
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+        
+        User user = userOpt.get();
+        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
             throw new RuntimeException("Invalid password");
         }
-        String token = jwtTokenProvider.generateToken(user.get().getEmail(), user.get().getRole().getRoleName());
-        System.out.println(token);
-        return new JwtResponse(token);
+        
+        // Update last login time
+        user.setLastLoginAt(new java.util.Date());
+        userRepository.save(user);
+        
+        // Generate tokens
+        String token = jwtTokenProvider.generateToken(user.getEmail(), user.getRole().getRoleName());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getEmail());
+        
+        // Create user info DTO
+        JwtResponse.UserInfoDTO userInfo = new JwtResponse.UserInfoDTO(
+                user.getId(),
+                user.getEmail(),
+                user.getUserName(),
+                user.getRole().getRoleName()
+        );
+        
+        return new JwtResponse(token, refreshToken, userInfo);
     }
 
 
@@ -100,11 +139,13 @@ public class UserServiceImpl implements UserService {
             dto.setEmail(user.getEmail());
             dto.setFullName(user.getUserName());
             dto.setLinkImage(user.getLinkImage());
+            dto.setProfileImage(user.getLinkImage()); // Map to profileImage for FE
             dto.setCreatedAt(user.getCreateAt());
+            dto.setUpdatedAt(user.getUpdatedAt());
+            dto.setLastLoginAt(user.getLastLoginAt());
             dto.setRole(user.getRole().getRoleName());
             dto.setStatus(user.getStatus());
-
-    return dto ;
+            return dto;
         }).collect(Collectors.toList()); // ẩn password trước khi trả về
 
         return new NotificationResponse(true, "Success", users);
@@ -114,12 +155,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserById(Long id) {
-        return userRepository.findById(id).map(user -> {;
+        return userRepository.findById(id).map(user -> {
             UserDTO dto = new UserDTO();
             dto.setId(user.getId());
             dto.setEmail(user.getEmail());
             dto.setFullName(user.getUserName());
             dto.setRole(user.getRole().getRoleName());
+            dto.setLinkImage(user.getLinkImage());
+            dto.setProfileImage(user.getLinkImage()); // Map to profileImage for FE
+            dto.setCreatedAt(user.getCreateAt());
+            dto.setUpdatedAt(user.getUpdatedAt());
+            dto.setLastLoginAt(user.getLastLoginAt());
             dto.setStatus(user.getStatus());
             return dto;
         }).orElseThrow(() -> new RuntimeException("User not found"));
@@ -130,16 +176,18 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new UserDTO(
-                user.getId(),
-                user.getEmail(),
-                user.getUserName(),
-                user.getRole().getRoleName(),
-                user.getLinkImage(),
-                user.getCreateAt(),
-                user.getStatus()
-        );
-
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getUserName());
+        dto.setRole(user.getRole().getRoleName());
+        dto.setLinkImage(user.getLinkImage());
+        dto.setProfileImage(user.getLinkImage()); // Map to profileImage for FE
+        dto.setCreatedAt(user.getCreateAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+        dto.setLastLoginAt(user.getLastLoginAt());
+        dto.setStatus(user.getStatus());
+        return dto;
     }
 
     @Override
@@ -433,6 +481,119 @@ public class UserServiceImpl implements UserService {
                 .calories(calories)
                 .minutes(minutes)
                 .build();
+    }
+    
+    @Override
+    public Page<UserDTO> getAllUsersPaginated(String status, String role, Pageable pageable) {
+        List<User> allUsers = userRepository.findAll();
+        
+        // Filter by status
+        if (status != null && !status.isEmpty()) {
+            allUsers = allUsers.stream()
+                    .filter(u -> u.getStatus() != null && u.getStatus().equalsIgnoreCase(status))
+                    .collect(Collectors.toList());
+        }
+        
+        // Filter by role
+        if (role != null && !role.isEmpty()) {
+            allUsers = allUsers.stream()
+                    .filter(u -> u.getRole() != null && 
+                            u.getRole().getRoleName().equalsIgnoreCase(role))
+                    .collect(Collectors.toList());
+        }
+        
+        // Map to DTOs
+        List<UserDTO> dtos = allUsers.stream()
+                .map(user -> {
+                    UserDTO dto = new UserDTO();
+                    dto.setId(user.getId());
+                    dto.setEmail(user.getEmail());
+                    dto.setFullName(user.getUserName());
+                    dto.setLinkImage(user.getLinkImage());
+                    dto.setProfileImage(user.getLinkImage());
+                    dto.setCreatedAt(user.getCreateAt());
+                    dto.setUpdatedAt(user.getUpdatedAt());
+                    dto.setLastLoginAt(user.getLastLoginAt());
+                    dto.setRole(user.getRole().getRoleName());
+                    dto.setStatus(user.getStatus());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        
+        // Apply pagination
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), dtos.size());
+        List<UserDTO> pagedDtos = dtos.subList(start, end);
+        
+        return new PageImpl<>(pagedDtos, pageable, dtos.size());
+    }
+    
+    @Override
+    public UserDTO createUser(RegisterRequestAdmin request) {
+        // Check email exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+        
+        // Get role
+        Role role = roleRepository.findById(request.getRoleId() != null ? request.getRoleId() : 2)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+        
+        // Create user
+        User user = new User();
+        user.setUserName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(role);
+        Date now = new Date();
+        user.setCreateAt(now);
+        user.setUpdatedAt(now);
+        
+        User savedUser = userRepository.save(user);
+        
+        // Return DTO
+        return getUserById(savedUser.getId());
+    }
+    
+    @Override
+    public UserDTO updateUser(Long id, RegisterRequestAdmin request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Update fields
+        if (request.getFullName() != null) {
+            user.setUserName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                throw new RuntimeException("Email already exists");
+            }
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
+            user.setRole(role);
+        }
+        
+        user.setUpdatedAt(new Date());
+        User savedUser = userRepository.save(user);
+        
+        // Return DTO
+        return getUserById(savedUser.getId());
+    }
+    
+    @Override
+    public NotificationResponse deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            return new NotificationResponse(false, "User not found");
+        }
+        
+        userRepository.deleteById(id);
+        return new NotificationResponse(true, "User deleted successfully");
     }
 
 }

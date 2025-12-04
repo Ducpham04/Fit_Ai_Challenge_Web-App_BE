@@ -13,6 +13,8 @@ import com.example.fitchallenge.service.UserTrainingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,6 +104,53 @@ public class UserTrainingServiceImpl implements UserTrainingService {
 
         return dto;
     }
-
-
+    
+    @Override
+    public NotificationResponse startTrainingPlan(Long trainingPlanId, Long userId, String startDate) {
+        try {
+            // Check if user exists
+            if (!userRepository.existsById(userId)) {
+                return new NotificationResponse(false, "User not found");
+            }
+            
+            // Check if training plan exists
+            TrainingPlan trainingPlan = trainingPlanRepository.findById(trainingPlanId)
+                    .orElseThrow(() -> new RuntimeException("Training plan not found"));
+            
+            // Check if user already started this training plan
+            if (userTrainingRepository.existsByUser_IdAndTrainingPlan_TpId(userId, trainingPlanId)) {
+                return new NotificationResponse(false, "User already started this training plan");
+            }
+            
+            // Parse start date
+            LocalDate start = LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            
+            // Calculate end date based on duration weeks
+            LocalDate end = start.plusWeeks(trainingPlan.getDurationWeeks() != null ? trainingPlan.getDurationWeeks() : 4);
+            
+            // Create UserTraining
+            UserTraining userTraining = new UserTraining();
+            userTraining.setUser(userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found")));
+            userTraining.setTrainingPlan(trainingPlan);
+            userTraining.setStartDate(start);
+            userTraining.setEndDate(end);
+            userTraining.setCompletionPercentage(0.0);
+            userTraining.setStatus("active");
+            
+            userTrainingRepository.save(userTraining);
+            
+            // Return response in FE format
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("message", "Training plan started successfully");
+            response.put("trainingPlanId", trainingPlanId);
+            response.put("userId", userId);
+            response.put("startDate", start.toString());
+            response.put("endDate", end.toString());
+            
+            return new NotificationResponse(true, "Training plan started successfully", response);
+        } catch (Exception e) {
+            return new NotificationResponse(false, "Error starting training plan: " + e.getMessage());
+        }
+    }
 }

@@ -41,12 +41,23 @@ public class Challenges {
 
     @Column(name = "Link_Videos")
     private String linkVideos;
+    
+    @Column(name = "Reward")
+    private String reward; // Reward description for completing challenge
 
     @Enumerated(EnumType.STRING)
     @Column(name="Status")
     private Status status;
 
     public enum  Status {
-        ACTIVE, INACTIVE
+        ACTIVE, INACTIVE, DRAFT, COMPLETED
+    }
+    
+    // Helper method to convert linkVideos string to array
+    public java.util.List<String> getVideoArray() {
+        if (linkVideos == null || linkVideos.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return java.util.Arrays.asList(linkVideos.split(","));
     }
 }

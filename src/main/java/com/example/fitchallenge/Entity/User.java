@@ -40,9 +40,21 @@ public class User {
     @Column(name="Link_Image")
     private String linkImage ;
     private Date CreateAt ;
+    
+    @Column(name="Updated_At")
+    private Date updatedAt;
+    
+    @Column(name="Last_Login_At")
+    private Date lastLoginAt;
+    
     @Column(name="Points")
     private Integer points ;
     @Column(name="Is_Active")
     private String status ;
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
 }
 

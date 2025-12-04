@@ -33,6 +33,18 @@ public class TrainingPlanDetail {
     // 🔂 Số lần lặp trong mỗi hiệp (có thể null nếu không áp dụng)
     @Column(name = "reps")
     private Integer reps;
+    
+    // ⏱️ Thời lượng tập (tính bằng giây)
+    @Column(name = "duration")
+    private Integer duration;
+    
+    // ⏸️ Thời gian nghỉ giữa các hiệp (tính bằng giây)
+    @Column(name = "rest_time")
+    private Integer restTime;
+    
+    // 📝 Hướng dẫn tập luyện
+    @Column(name = "instructions", columnDefinition = "TEXT")
+    private String instructions;
 
     // 🧱 Constructors
     public TrainingPlanDetail() {}
@@ -92,5 +104,29 @@ public class TrainingPlanDetail {
 
     public void setReps(Integer reps) {
         this.reps = reps;
+    }
+    
+    public Integer getDuration() {
+        return duration;
+    }
+    
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+    
+    public Integer getRestTime() {
+        return restTime;
+    }
+    
+    public void setRestTime(Integer restTime) {
+        this.restTime = restTime;
+    }
+    
+    public String getInstructions() {
+        return instructions;
+    }
+    
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
     }
 }

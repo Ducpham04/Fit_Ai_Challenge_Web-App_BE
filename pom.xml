@@ -133,7 +133,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-function-adapter-aws</artifactId>
-            <version>3.2.11</version>
+            <version>4.1.1</version>
         </dependency>
 
 
@@ -142,6 +142,20 @@
 	<build>
 
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -168,66 +182,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<!-- Profile cho AWS Lambda build -->
-		<profile>
-			<id>lambda</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<annotationProcessorPaths>
-								<path>
-									<groupId>org.projectlombok</groupId>
-									<artifactId>lombok</artifactId>
-								</path>
-							</annotationProcessorPaths>
-						</configuration>
-					</plugin>
-					<!-- Tắt Spring Boot repackage cho Lambda -->
-					<plugin>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-maven-plugin</artifactId>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-						<executions>
-							<execution>
-								<id>repackage</id>
-								<phase>none</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<!-- Maven Shade Plugin để tạo uber JAR cho Lambda -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-shade-plugin</artifactId>
-                        <version>3.5.1</version>
-                        <executions>
-                            <execution>
-                                <id>shade-lambda</id>
-                                <phase>package</phase>
-                                <goals><goal>shade</goal></goals>
-                                <configuration>
-                                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                                    <shadedArtifactAttached>true</shadedArtifactAttached>
-                                    <shadedClassifierName>lambda</shadedClassifierName>
-                                    <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <mainClass>com.example.fitchallenge.config.StreamLambdaHandler</mainClass>
-                                        </transformer>
-                                    </transformers>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                </plugins>
-			</build>
-		</profile>
-	</profiles>
 
 </project>

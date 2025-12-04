@@ -21,9 +21,19 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequestAdmin request) {
-        userService.register(request);
-        return ResponseEntity.ok("User registered successfully!");
+    public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequestAdmin request) {
+        JwtResponse jwtResponse = userService.register(request);
+        return ResponseEntity.ok(jwtResponse);
+    }
+    
+    @GetMapping("/auth/user")
+    public ResponseEntity<UserDTO> getUserProfile(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+        UserDTO user = userService.getUserByEmail(userDetails.getUsername());
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/auth/login")

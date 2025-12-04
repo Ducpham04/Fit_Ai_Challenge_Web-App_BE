@@ -71,7 +71,14 @@ public class Reward {
     private OffsetDateTime createdAt = OffsetDateTime.now();
     @Column(name = "expire_At")
     private Date expireAt;
+    
     @Column (name = "Claimed")
-    private Integer claimed =0 ;
+    private Integer claimed = 0;
+    
+    /**
+     * ⚙️ Trạng thái phần thưởng: active, inactive
+     */
+    @Column(name = "status", length = 20)
+    private String status = "active";
 }
 

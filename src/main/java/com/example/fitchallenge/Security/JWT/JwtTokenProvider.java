@@ -16,6 +16,9 @@ public class JwtTokenProvider {
 
     @Value("${jwt.expiration}")
     private long jwtExpiration;
+    
+    @Value("${jwt.refreshExpiration:604800000}") // Default 7 days
+    private long refreshExpiration;
 
     // ✅ Tạo token
     public String generateToken(String email, String role) {
@@ -50,6 +53,20 @@ public class JwtTokenProvider {
         return claims.get("role", String.class);
     }
 
+    // ✅ Tạo refresh token
+    public String generateRefreshToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshExpiration);
+        
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("type", "refresh")
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .compact();
+    }
+    
     // ✅ Kiểm tra token hợp lệ
     public boolean validateToken(String token) {
         try {
