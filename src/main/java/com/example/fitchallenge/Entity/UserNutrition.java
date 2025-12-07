@@ -54,11 +54,13 @@ public class UserNutrition {
     @Column(name = "end_date")
     private LocalDate endDate;
     @Column(name ="completion")
+    @Builder.Default
     private Double completion = 0.0;
     /**
      * ⚙️ Trạng thái kế hoạch: active / completed / canceled / paused
      */
     @Column(name = "status", length = 20)
+    @Builder.Default
     private String status = "active";
 }
 

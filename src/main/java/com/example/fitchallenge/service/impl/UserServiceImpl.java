@@ -484,8 +484,17 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public Page<UserDTO> getAllUsersPaginated(String status, String role, Pageable pageable) {
+    public Page<UserDTO> getAllUsersPaginated(String status, String role, String search, Pageable pageable) {
         List<User> allUsers = userRepository.findAll();
+        
+        // Search by email or username
+        if (search != null && !search.isEmpty()) {
+            String searchLower = search.toLowerCase();
+            allUsers = allUsers.stream()
+                    .filter(u -> (u.getEmail() != null && u.getEmail().toLowerCase().contains(searchLower)) ||
+                            (u.getUserName() != null && u.getUserName().toLowerCase().contains(searchLower)))
+                    .collect(Collectors.toList());
+        }
         
         // Filter by status
         if (status != null && !status.isEmpty()) {

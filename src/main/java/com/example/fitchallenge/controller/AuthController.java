@@ -42,12 +42,7 @@ public class AuthController {
         System.out.println("Ddax vaof");
         return ResponseEntity.ok(jwtResponse);
     }
-    @GetMapping("/admin/users")
-    public ResponseEntity<NotificationResponse> getAllUsers() {
-        NotificationResponse response = userService.getAllUsers();
-        System.out.println("Da vao get all users");
-        return ResponseEntity.ok(response);
-    }
+    
     @GetMapping("/users/{id}")
     public ResponseEntity<NotificationResponse> getUserById(@PathVariable Long id) {
         NotificationResponse response = new NotificationResponse();

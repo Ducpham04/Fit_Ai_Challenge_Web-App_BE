@@ -23,3 +23,4 @@ public class ExerciseDTO {
     private String videoUrl;
 }
 
+

@@ -9,9 +9,11 @@ import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
 import com.example.fitchallenge.repository.User.UserRepository;
 import com.example.fitchallenge.repository.UserTrainingRepository;
+import com.example.fitchallenge.service.PersonalizationService;
 import com.example.fitchallenge.service.UserTrainingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +27,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     private final UserTrainingRepository userTrainingRepository;
     private final UserRepository userRepository;
     private final TrainingPlanRepository trainingPlanRepository;
+    private final PersonalizationService personalizationService;
     @Override
     public NotificationResponse getUserTrainingDetails(Long userId) {
 
@@ -106,6 +109,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     }
     
     @Override
+    @Transactional
     public NotificationResponse startTrainingPlan(Long trainingPlanId, Long userId, String startDate) {
         try {
             // Check if user exists
@@ -138,19 +142,58 @@ public class UserTrainingServiceImpl implements UserTrainingService {
             userTraining.setCompletionPercentage(0.0);
             userTraining.setStatus("active");
             
-            userTrainingRepository.save(userTraining);
+            UserTraining savedUserTraining = userTrainingRepository.save(userTraining);
+            
+            // Create PersonalizedPlanDetail for this user training
+            NotificationResponse personalizationResponse = personalizationService.createPersonalizedPlanDetails(savedUserTraining.getUtId());
+            if (!personalizationResponse.isSuccess()) {
+                // Log warning but don't fail the entire operation
+                System.out.println("Warning: Could not create personalized plan details: " + personalizationResponse.getMessage());
+            }
             
             // Return response in FE format
             java.util.Map<String, Object> response = new java.util.HashMap<>();
             response.put("message", "Training plan started successfully");
+            response.put("utId", savedUserTraining.getUtId());
             response.put("trainingPlanId", trainingPlanId);
             response.put("userId", userId);
             response.put("startDate", start.toString());
             response.put("endDate", end.toString());
+            response.put("personalized", personalizationResponse.isSuccess());
             
             return new NotificationResponse(true, "Training plan started successfully", response);
         } catch (Exception e) {
             return new NotificationResponse(false, "Error starting training plan: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public NotificationResponse getUsersFollowingTrainingPlan(Long trainingPlanId) {
+        try {
+            List<UserTraining> userTrainings = userTrainingRepository.findByTrainingPlan_TpId(trainingPlanId);
+            
+            List<java.util.Map<String, Object>> usersList = userTrainings.stream()
+                    .map(ut -> {
+                        java.util.Map<String, Object> userMap = new java.util.HashMap<>();
+                        userMap.put("id", ut.getUser().getId());
+                        userMap.put("username", ut.getUser().getUserName());
+                        userMap.put("email", ut.getUser().getEmail());
+                        userMap.put("startDate", ut.getStartDate() != null ? ut.getStartDate().toString() : null);
+                        userMap.put("completedDays", ut.getCompletedDays() != null ? ut.getCompletedDays() : 0);
+                        // Calculate total days from start to end date
+                        long totalDays = ut.getEndDate() != null && ut.getStartDate() != null
+                                ? java.time.temporal.ChronoUnit.DAYS.between(ut.getStartDate(), ut.getEndDate())
+                                : 0;
+                        userMap.put("totalDays", totalDays);
+                        userMap.put("completionPercentage", ut.getCompletionPercentage() != null ? ut.getCompletionPercentage() : 0.0);
+                        userMap.put("status", ut.getStatus());
+                        return userMap;
+                    })
+                    .collect(Collectors.toList());
+            
+            return new NotificationResponse(true, "Users following training plan retrieved successfully", usersList);
+        } catch (Exception e) {
+            return new NotificationResponse(false, "Error retrieving users: " + e.getMessage());
         }
     }
 }

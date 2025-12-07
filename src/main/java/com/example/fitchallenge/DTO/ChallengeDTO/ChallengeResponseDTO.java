@@ -31,3 +31,4 @@ public class ChallengeResponseDTO {
     private List<ParticipantDTO> participantsList;
 }
 
+

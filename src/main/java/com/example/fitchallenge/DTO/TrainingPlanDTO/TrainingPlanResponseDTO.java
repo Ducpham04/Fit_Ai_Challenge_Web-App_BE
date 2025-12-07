@@ -37,3 +37,4 @@ public class TrainingPlanResponseDTO {
     private OffsetDateTime updatedAt;
 }
 
+

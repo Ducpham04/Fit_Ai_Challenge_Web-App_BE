@@ -56,6 +56,7 @@ public class Reward {
      * 📦 Số lượng phần thưởng còn trong kho (mặc định 0)
      */
     @Column(nullable = false)
+    @Builder.Default
     private Integer stock = 0;
 
     /**
@@ -68,17 +69,20 @@ public class Reward {
      * 🕒 Ngày tạo phần thưởng (tự động mặc định = now())
      */
     @Column(name = "created_at")
+    @Builder.Default
     private OffsetDateTime createdAt = OffsetDateTime.now();
     @Column(name = "expire_At")
     private Date expireAt;
     
     @Column (name = "Claimed")
+    @Builder.Default
     private Integer claimed = 0;
     
     /**
      * ⚙️ Trạng thái phần thưởng: active, inactive
      */
     @Column(name = "status", length = 20)
+    @Builder.Default
     private String status = "active";
 }
 

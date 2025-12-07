@@ -12,4 +12,9 @@ public interface UserTrainingRepository extends JpaRepository<UserTraining, Long
     void save(UserRequestDTO userRequestDTO);
 
     boolean existsByUser_IdAndTrainingPlan_TpId(Long userID, Long trainingID);
+    
+    /**
+     * Lấy danh sách users đang theo training plan
+     */
+    List<UserTraining> findByTrainingPlan_TpId(Long trainingPlanId);
 }

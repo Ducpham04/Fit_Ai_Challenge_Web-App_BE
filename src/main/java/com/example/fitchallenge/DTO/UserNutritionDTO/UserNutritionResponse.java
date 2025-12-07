@@ -3,7 +3,6 @@ package com.example.fitchallenge.DTO.UserNutritionDTO;
 import com.example.fitchallenge.DTO.MealDTO.MealResponse;
 import lombok.*;
 
-import java.lang.annotation.Target;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;

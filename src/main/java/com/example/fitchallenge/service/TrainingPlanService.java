@@ -19,6 +19,12 @@ public interface TrainingPlanService {
 
     NotificationResponse deleteTrainingPlan(Long tpId);
     
+    // Duplicate plan
+    NotificationResponse duplicateTrainingPlan(Long tpId);
+    
+    // Publish/Unpublish plan
+    NotificationResponse publishTrainingPlan(Long tpId, boolean publish);
+    
     // New methods for user-facing APIs
     Page<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO> getAllTrainingPlansForUser(String difficulty, String status, Long goalId, Pageable pageable);
     com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO getTrainingPlanByIdForUser(Long tpId);

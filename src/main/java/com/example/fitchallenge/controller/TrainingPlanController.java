@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -59,21 +61,34 @@ public class TrainingPlanController {
     }
 
     /**
-     * Start a training plan
+     * Start a training plan (with personalization)
      * 
      * @param id Training Plan ID
-     * @param request Body với userId và startDate
+     * @param request Body với startDate (userId từ JWT)
      * @return NotificationResponse
      */
     @PostMapping("/{id}/start")
     public ResponseEntity<NotificationResponse> startTrainingPlan(
             @PathVariable Long id,
-            @RequestBody StartTrainingPlanRequest request) {
+            @RequestBody(required = false) StartTrainingPlanRequest request) {
         
-        NotificationResponse response = userTrainingService.startTrainingPlan(
-                id, request.getUserId(), request.getStartDate());
-        
-        return ResponseEntity.ok(response);
+        try {
+            // Get current user ID from JWT
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Long userId = Long.parseLong(auth.getName());
+            
+            // Use provided startDate or default to today
+            String startDate = (request != null && request.getStartDate() != null) 
+                    ? request.getStartDate() 
+                    : java.time.LocalDate.now().toString();
+            
+            NotificationResponse response = userTrainingService.startTrainingPlan(
+                    id, userId, startDate);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.ok(new NotificationResponse(false, "Error: " + e.getMessage()));
+        }
     }
     
     // Inner class for start request
@@ -81,8 +96,7 @@ public class TrainingPlanController {
     @lombok.AllArgsConstructor
     @lombok.NoArgsConstructor
     public static class StartTrainingPlanRequest {
-        private Long userId;
-        private String startDate;
+        private String startDate; // userId now comes from JWT
     }
 }
 

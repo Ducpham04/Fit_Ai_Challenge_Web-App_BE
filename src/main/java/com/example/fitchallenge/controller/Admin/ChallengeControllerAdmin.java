@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/admin/challenges")
 @RequiredArgsConstructor
-public class ChallengeController {
+public class ChallengeControllerAdmin {
 
     private final ChallengeService challengeService;
 

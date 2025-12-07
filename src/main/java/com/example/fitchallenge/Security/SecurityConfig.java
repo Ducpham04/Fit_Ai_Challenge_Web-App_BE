@@ -37,10 +37,23 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5173"));  // FE URL
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Get allowed origins from environment variable or use defaults
+        String allowedOriginsEnv = System.getenv("CORS_ALLOWED_ORIGINS");
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
+            config.setAllowedOrigins(List.of(allowedOriginsEnv.split(",")));
+        } else {
+            // Default: localhost for dev and allow Lambda API Gateway
+            config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://*.execute-api.*.amazonaws.com"  // Lambda API Gateway pattern
+            ));
+        }
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);  // Cache preflight for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
@@ -82,9 +95,15 @@ public class SecurityConfig {
                                 "/api/admin/rewards/**",
                                 "/api/transactions/**",
                                 "/api/user/training/**",
+                                "/api/user/challenges/**",
+                                "/api/user/profile/body/**",
                                 "/api/v1/users/**",
-
-                                "uploads/**"
+                                "/api/challenges/**",
+                                "/api/training-plans/**",
+                                "/api/admin/users/**",
+                                "/api/users/**",
+                                "/api/user/**",
+                                "/uploads/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/admin/**"

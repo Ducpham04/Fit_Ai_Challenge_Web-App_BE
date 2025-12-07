@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class AdminUserController {
 
     private final UserService userService;
+    private final com.example.fitchallenge.service.BodyMetricHistoryService bodyMetricHistoryService;
+    private final com.example.fitchallenge.service.UserInfoService userInfoService;
+    private final com.example.fitchallenge.service.UserTrainingService userTrainingService;
 
     /**
      * Get all users với pagination và filters
@@ -34,11 +37,12 @@ public class AdminUserController {
     public ResponseEntity<Page<UserDTO>> getAllUsers(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String role,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
         
         Pageable pageable = PageRequest.of(page, limit);
-        Page<UserDTO> users = userService.getAllUsersPaginated(status, role, pageable);
+        Page<UserDTO> users = userService.getAllUsersPaginated(status, role, search, pageable);
         
         return ResponseEntity.ok(users);
     }
@@ -81,5 +85,47 @@ public class AdminUserController {
         NotificationResponse response = userService.deleteUser(id);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * GET /api/admin/users/{id}/body-metrics
+     * Lấy lịch sử body metrics của user (BodyMetricHistory)
+     */
+    @GetMapping("/{id}/body-metrics")
+    public ResponseEntity<NotificationResponse> getUserBodyMetrics(
+            @PathVariable Long id,
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to) {
+        
+        if (from != null && to != null) {
+            java.time.ZonedDateTime fromDate = java.time.ZonedDateTime.parse(from);
+            java.time.ZonedDateTime toDate = java.time.ZonedDateTime.parse(to);
+            NotificationResponse response = bodyMetricHistoryService.getBodyMetricsByDateRange(id, fromDate, toDate);
+            return ResponseEntity.ok(response);
+        } else {
+            NotificationResponse response = bodyMetricHistoryService.getAllBodyMetrics(id);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * GET /api/admin/users/{id}/body-data
+     * Lấy thông tin body hiện tại của user (InformationBodyUser)
+     */
+    @GetMapping("/{id}/body-data")
+    public ResponseEntity<NotificationResponse> getUserBodyData(@PathVariable Long id) {
+        NotificationResponse response = userInfoService.getUserInfo(id);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * GET /api/admin/users/{id}/training-plans
+     * Lấy danh sách training plans của user
+     */
+    @GetMapping("/{id}/training-plans")
+    public ResponseEntity<NotificationResponse> getUserTrainingPlans(@PathVariable Long id) {
+        NotificationResponse response = userTrainingService.getUserTrainingDetails(id);
+        return ResponseEntity.ok(response);
+    }
 }
+
 

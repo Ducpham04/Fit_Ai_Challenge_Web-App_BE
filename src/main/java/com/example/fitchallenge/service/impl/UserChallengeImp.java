@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -100,6 +101,7 @@ public class UserChallengeImp implements UserChallengeService {
             if (dto.getKeypointsPayload() != null) existing.setKeypointsPayload(dto.getKeypointsPayload());
             if (dto.getScore() != null) existing.setScore(dto.getScore());
             if (dto.getConfidence() != null) existing.setConfidence(dto.getConfidence());
+            if (dto.getCompletedAt() != null) existing.setCompletedAt(dto.getCompletedAt());
 
             userChallengeRepository.save(existing);
             return new NotificationResponse(true, "Cập nhật thành công", existing);
@@ -116,5 +118,30 @@ public class UserChallengeImp implements UserChallengeService {
         }
         userChallengeRepository.deleteById(id);
         return new NotificationResponse(true, "Xóa user challenge thành công");
+    }
+
+    @Override
+    @Transactional
+    public NotificationResponse completeChallenge(Long id, Long userId) {
+        Optional<UserChallenge> optional = userChallengeRepository.findById(id);
+        
+        if (optional.isEmpty()) {
+            return new NotificationResponse(false, "Không tìm thấy challenge để đánh dấu hoàn thành");
+        }
+        
+        UserChallenge userChallenge = optional.get();
+        
+        // Kiểm tra user có quyền đánh dấu challenge này không
+        if (!userChallenge.getUser().getId().equals(userId)) {
+            return new NotificationResponse(false, "Bạn không có quyền đánh dấu challenge này");
+        }
+        
+        // Đánh dấu hoàn thành
+        userChallenge.setStatus("success");
+        userChallenge.setCompletedAt(ZonedDateTime.now());
+        
+        userChallengeRepository.save(userChallenge);
+        
+        return new NotificationResponse(true, "Đã đánh dấu challenge hoàn thành", userChallenge);
     }
 }

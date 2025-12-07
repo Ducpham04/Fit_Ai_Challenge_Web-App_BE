@@ -1,7 +1,6 @@
 package com.example.fitchallenge.DTO.TrainingPlanDetailDTO;
 
 import com.example.fitchallenge.DTO.ChallengeDTO.ChallengeDTOPayload;
-import com.example.fitchallenge.Entity.Challenges;
 import lombok.Data;
 
 @Data

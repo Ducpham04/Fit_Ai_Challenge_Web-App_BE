@@ -38,4 +38,34 @@ public class UserChallengeController {
     public ResponseEntity<NotificationResponse> delete(@PathVariable Long id) {
         return ResponseEntity.ok(userChallengeService.delete(id));
     }
+
+    /**
+     * PUT /api/admin/user-challenges/{id}/feedback
+     * Gửi feedback thủ công (cần thêm field adminFeedback vào entity)
+     */
+    @PutMapping("/{id}/feedback")
+    public ResponseEntity<NotificationResponse> addFeedback(
+            @PathVariable Long id,
+            @RequestBody FeedbackRequest request) {
+        
+        // TODO: Implement khi có field adminFeedback trong UserChallenge entity
+        // Hiện tại có thể update score nếu cần
+        if (request.getAdjustedScore() != null) {
+            UserChallengeDTO dto = new UserChallengeDTO();
+            dto.setUcId(id);
+            dto.setScore(request.getAdjustedScore());
+            return ResponseEntity.ok(userChallengeService.update(id, dto));
+        }
+        
+        return ResponseEntity.ok(new NotificationResponse(false, 
+                "Feature not fully implemented yet. Need to add adminFeedback field to UserChallenge entity"));
+    }
+
+    @lombok.Data
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class FeedbackRequest {
+        private String feedback;
+        private Integer adjustedScore; // Điều chỉnh score nếu cần
+    }
 }

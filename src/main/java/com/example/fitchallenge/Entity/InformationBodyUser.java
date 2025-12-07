@@ -41,6 +41,15 @@ public class InformationBodyUser {
     @Column(name = "bmi", precision = 5, scale = 2)
     private BigDecimal bmi;
 
+    @Column(name = "activity_level", length = 50)
+    private String activityLevel; // sedentary, lightly active, moderately active, very active, extra active
+
+    @Column(name = "bmr", precision = 8, scale = 2)
+    private BigDecimal bmr; // Basal Metabolic Rate
+
+    @Column(name = "recommended_calories", precision = 8, scale = 0)
+    private BigDecimal recommendedCalories;
+
     // Quan hệ nhiều - 1 với bảng goals
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")

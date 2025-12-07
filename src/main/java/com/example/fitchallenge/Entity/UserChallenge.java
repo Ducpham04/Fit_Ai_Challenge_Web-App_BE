@@ -41,6 +41,7 @@ public class UserChallenge {
      * - disputed: đang tranh chấp
      */
     @Column(name = "status", length = 20)
+    @Builder.Default
     private String status = "pending";
 
     /** 🔹 Đường dẫn đến video người dùng gửi lên (có thể là URL tới server hoặc CDN) */
@@ -65,6 +66,7 @@ public class UserChallenge {
 
     /** 🔹 Thời điểm người dùng gửi bài (mặc định: thời điểm hiện tại) */
     @Column(name = "submitted_at")
+    @Builder.Default
     private ZonedDateTime submittedAt = ZonedDateTime.now();
 
     /** 🔹 Thời điểm hoàn thành thử thách (có thể null nếu chưa hoàn thành) */

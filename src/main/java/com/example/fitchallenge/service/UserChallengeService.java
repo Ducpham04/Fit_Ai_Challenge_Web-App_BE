@@ -9,4 +9,10 @@ public interface UserChallengeService {
     NotificationResponse create(UserChallengeDTO dto);
     NotificationResponse update(Long id, UserChallengeDTO dto);
     NotificationResponse delete(Long id);
+    
+    /**
+     * Đánh dấu challenge đã hoàn thành
+     * Set status = "success" và completedAt = now()
+     */
+    NotificationResponse completeChallenge(Long id, Long userId);
 }

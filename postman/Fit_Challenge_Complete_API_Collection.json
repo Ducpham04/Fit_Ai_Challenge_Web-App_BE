@@ -1,0 +1,1781 @@
+{
+	"info": {
+		"name": "Fit Challenge - Complete API Collection",
+		"description": "Tổng hợp toàn bộ API endpoints của dự án Fit Challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_postman_id": "fit-challenge-complete-api"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Nguyễn Văn A\",\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"roleId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Đăng ký tài khoản mới. Trả về JwtResponse với token, refreshToken và user info."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "Đăng nhập. Trả về JwtResponse với token, refreshToken và user info."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/user",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "user"]
+						},
+						"description": "Lấy thông tin user hiện tại (từ token)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User (Me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						},
+						"description": "Lấy thông tin user hiện tại (alias của /auth/user)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{userId}}"]
+						},
+						"description": "Lấy thông tin user theo ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API liên quan đến authentication và user management"
+		},
+		{
+			"name": "2. User Profile",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/{{userId}}/profile",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "{{userId}}", "profile"]
+						},
+						"description": "Lấy thông tin profile cơ bản của user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Full User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/users/{{userId}}/profile/full",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "users", "{{userId}}", "profile", "full"]
+						},
+						"description": "Lấy full profile bao gồm stats, activity, goals, achievements"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API liên quan đến user profile"
+		},
+		{
+			"name": "3. Challenges (User)",
+			"item": [
+				{
+					"name": "Get All Challenges",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/challenges?status=ACTIVE&difficulty=EASY&page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "challenges"],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE",
+									"description": "Filter by status (ACTIVE, INACTIVE, DRAFT, COMPLETED)"
+								},
+								{
+									"key": "difficulty",
+									"value": "EASY",
+									"description": "Filter by difficulty (EASY, MEDIUM, HARD)"
+								},
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Page number (default: 0)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page (default: 10)"
+								}
+							]
+						},
+						"description": "Lấy danh sách challenges với pagination và filters"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenge By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/challenges/{{challengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "challenges", "{{challengeId}}"]
+						},
+						"description": "Lấy thông tin chi tiết challenge kèm danh sách participants"
+					},
+					"response": []
+				},
+				{
+					"name": "Join Challenge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/challenges/{{challengeId}}/join",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "challenges", "{{challengeId}}", "join"]
+						},
+						"description": "Tham gia challenge"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API challenges dành cho user"
+		},
+		{
+			"name": "4. Training Plans (User)",
+			"item": [
+				{
+					"name": "Get All Training Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/training-plans?difficulty=Beginner&status=Active&goalId=1&page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "training-plans"],
+							"query": [
+								{
+									"key": "difficulty",
+									"value": "Beginner",
+									"description": "Filter by difficulty (Beginner, Intermediate, Advanced)"
+								},
+								{
+									"key": "status",
+									"value": "Active",
+									"description": "Filter by status (Active, Completed, Paused)"
+								},
+								{
+									"key": "goalId",
+									"value": "1",
+									"description": "Filter by goal ID"
+								},
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Page number (default: 0)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page (default: 10)"
+								}
+							]
+						},
+						"description": "Lấy danh sách training plans với pagination, filters và exercises array"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Training Plan By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/training-plans/{{trainingPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "training-plans", "{{trainingPlanId}}"]
+						},
+						"description": "Lấy thông tin chi tiết training plan kèm exercises array"
+					},
+					"response": []
+				},
+				{
+					"name": "Start Training Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}},\n  \"startDate\": \"2024-01-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/training-plans/{{trainingPlanId}}/start",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "training-plans", "{{trainingPlanId}}", "start"]
+						},
+						"description": "Bắt đầu một training plan"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API training plans dành cho user"
+		},
+		{
+			"name": "5. User Training",
+			"item": [
+				{
+					"name": "Get User Training Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/user/training/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "training", "{{userId}}"]
+						},
+						"description": "Lấy chi tiết training của user"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Training",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userID\": {{userId}},\n  \"trainingID\": {{trainingPlanId}},\n  \"startDate\": \"2024-01-01\",\n  \"endDate\": \"2024-01-31\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/user/training",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "user", "training"]
+						},
+						"description": "Tạo user training mới"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý user training"
+		},
+		{
+			"name": "6. Admin - User Management",
+			"item": [
+				{
+					"name": "Get All Users (Paginated)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users?status=active&role=USER&page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users"],
+							"query": [
+								{
+									"key": "status",
+									"value": "active",
+									"description": "Filter by status (active, inactive, banned)"
+								},
+								{
+									"key": "role",
+									"value": "USER",
+									"description": "Filter by role"
+								},
+								{
+									"key": "page",
+									"value": "0",
+									"description": "Page number (default: 0)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page (default: 10)"
+								}
+							]
+						},
+						"description": "Lấy danh sách users với pagination và filters (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Nguyễn Văn B\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"roleId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users"]
+						},
+						"description": "Tạo user mới (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Nguyễn Văn B Updated\",\n  \"email\": \"updated@example.com\",\n  \"password\": \"newpassword123\",\n  \"roleId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users", "{{userId}}"]
+						},
+						"description": "Cập nhật user (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users", "{{userId}}"]
+						},
+						"description": "Xóa user (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý users (Admin only)"
+		},
+		{
+			"name": "7. Admin - Challenges",
+			"item": [
+				{
+					"name": "Create Challenge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "{\"title\":\"30 Day Push Up Challenge\",\"description\":\"Complete 30 push ups every day\",\"difficult\":\"MEDIUM\",\"status\":\"ACTIVE\"}",
+									"type": "text"
+								},
+								{
+									"key": "video",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/challenges",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "challenges"]
+						},
+						"description": "Tạo challenge mới (Admin only, multipart/form-data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Challenges",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/challenges",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "challenges"]
+						},
+						"description": "Lấy danh sách tất cả challenges (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenge By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/challenges/{{challengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "challenges", "{{challengeId}}"]
+						},
+						"description": "Lấy challenge theo ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Challenge",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "{\"title\":\"Updated Challenge\",\"description\":\"Updated description\",\"difficult\":\"HARD\",\"status\":\"ACTIVE\"}",
+									"type": "text"
+								},
+								{
+									"key": "video",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/challenges/{{challengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "challenges", "{{challengeId}}"]
+						},
+						"description": "Cập nhật challenge (Admin only, multipart/form-data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Challenge",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/challenges/{{challengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "challenges", "{{challengeId}}"]
+						},
+						"description": "Xóa challenge (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý challenges (Admin only)"
+		},
+		{
+			"name": "8. Admin - Training Plans",
+			"item": [
+				{
+					"name": "Get All Training Plans",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/training-plans",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "training-plans"]
+						},
+						"description": "Lấy danh sách tất cả training plans (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Training Plan By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/training-plans/{{trainingPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "training-plans", "{{trainingPlanId}}"]
+						},
+						"description": "Lấy training plan theo ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Training Plans By Goal",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/training-plans/goal/{{goalId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "training-plans", "goal", "{{goalId}}"]
+						},
+						"description": "Lấy training plans theo goal ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Training Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"goalId\": 1,\n  \"title\": \"Beginner Workout Plan\",\n  \"description\": \"A 4-week beginner workout plan\",\n  \"difficultyLevel\": \"Beginner\",\n  \"durationWeeks\": 4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/training-plans",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "training-plans"]
+						},
+						"description": "Tạo training plan mới (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Training Plan",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"goalId\": 1,\n  \"title\": \"Updated Workout Plan\",\n  \"description\": \"Updated description\",\n  \"difficultyLevel\": \"Intermediate\",\n  \"durationWeeks\": 6\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/training-plans/{{trainingPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "training-plans", "{{trainingPlanId}}"]
+						},
+						"description": "Cập nhật training plan (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Training Plan",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/training-plans/{{trainingPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "training-plans", "{{trainingPlanId}}"]
+						},
+						"description": "Xóa training plan (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý training plans (Admin only)"
+		},
+		{
+			"name": "9. Admin - Goals",
+			"item": [
+				{
+					"name": "Create Goal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "{\"name\":\"Weight Loss\",\"description\":\"Lose weight and get fit\"}",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/goals",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "goals"]
+						},
+						"description": "Tạo goal mới (Admin only, multipart/form-data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Goals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/goals",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "goals"]
+						},
+						"description": "Lấy danh sách tất cả goals"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Goal",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data",
+									"value": "{\"name\":\"Updated Goal\",\"description\":\"Updated description\"}",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/goals/{{goalId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "goals", "{{goalId}}"]
+						},
+						"description": "Cập nhật goal (Admin only, multipart/form-data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Goal",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/goals/{{goalId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "goals", "{{goalId}}"]
+						},
+						"description": "Xóa goal (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý goals (Admin only)"
+		},
+		{
+			"name": "10. Admin - Rewards",
+			"item": [
+				{
+					"name": "Create Reward",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "reward",
+									"value": "{\"name\":\"Free Gym Pass\",\"description\":\"1 month free gym membership\",\"costPoints\":1000,\"stock\":50,\"status\":\"active\"}",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/rewards",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "rewards"]
+						},
+						"description": "Tạo reward mới (Admin only, multipart/form-data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Rewards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/rewards",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "rewards"]
+						},
+						"description": "Lấy danh sách tất cả rewards"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Reward By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/rewards/{{rewardId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "rewards", "{{rewardId}}"]
+						},
+						"description": "Lấy reward theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Reward",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "reward",
+									"value": "{\"name\":\"Updated Reward\",\"description\":\"Updated description\",\"costPoints\":1500,\"stock\":30,\"status\":\"active\"}",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/rewards/{{rewardId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "rewards", "{{rewardId}}"]
+						},
+						"description": "Cập nhật reward (Admin only, multipart/form-data)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Reward",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/rewards/{{rewardId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "rewards", "{{rewardId}}"]
+						},
+						"description": "Xóa reward (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý rewards (Admin only)"
+		},
+		{
+			"name": "11. Nutrition Plans",
+			"item": [
+				{
+					"name": "Create Nutrition Plan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"goalId\": 1,\n  \"title\": \"Weight Loss Meal Plan\",\n  \"description\": \"A healthy meal plan for weight loss\",\n  \"targetCalories\": 1500,\n  \"durationWeeks\": 4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/nutrition-plans",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "nutrition-plans"]
+						},
+						"description": "Tạo nutrition plan mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Nutrition Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/nutrition-plans",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "nutrition-plans"]
+						},
+						"description": "Lấy danh sách tất cả nutrition plans"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Nutrition Plan By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/nutrition-plans/{{nutritionPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "nutrition-plans", "{{nutritionPlanId}}"]
+						},
+						"description": "Lấy nutrition plan theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Nutrition Plans By Goal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/nutrition-plans/goal/{{goalId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "nutrition-plans", "goal", "{{goalId}}"]
+						},
+						"description": "Lấy nutrition plans theo goal ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Nutrition Plan",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"goalId\": 1,\n  \"title\": \"Updated Meal Plan\",\n  \"description\": \"Updated description\",\n  \"targetCalories\": 1800,\n  \"durationWeeks\": 6\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/nutrition-plans/{{nutritionPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "nutrition-plans", "{{nutritionPlanId}}"]
+						},
+						"description": "Cập nhật nutrition plan"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Nutrition Plan",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/nutrition-plans/{{nutritionPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "nutrition-plans", "{{nutritionPlanId}}"]
+						},
+						"description": "Xóa nutrition plan"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý nutrition plans"
+		},
+		{
+			"name": "12. Admin - Meals",
+			"item": [
+				{
+					"name": "Create Meal",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nutritionPlanId\": 1,\n  \"mealType\": \"Breakfast\",\n  \"dayNumber\": 1,\n  \"calories\": 400\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meals",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meals"]
+						},
+						"description": "Tạo meal mới (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Meals",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meals",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meals"]
+						},
+						"description": "Lấy danh sách tất cả meals (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Meal By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meals/{{mealId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meals", "{{mealId}}"]
+						},
+						"description": "Lấy meal theo ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Meals By Plan",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meals/plan/{{nutritionPlanId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meals", "plan", "{{nutritionPlanId}}"]
+						},
+						"description": "Lấy meals theo nutrition plan ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Meal",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nutritionPlanId\": 1,\n  \"mealType\": \"Lunch\",\n  \"dayNumber\": 1,\n  \"calories\": 500\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meals/{{mealId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meals", "{{mealId}}"]
+						},
+						"description": "Cập nhật meal (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Meal",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/meals/{{mealId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "meals", "{{mealId}}"]
+						},
+						"description": "Xóa meal (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý meals (Admin only)"
+		},
+		{
+			"name": "13. Foods",
+			"item": [
+				{
+					"name": "Get All Foods",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/foods",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "foods"]
+						},
+						"description": "Lấy danh sách tất cả foods (Public)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Food (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Chicken Breast\",\n  \"calories\": 165,\n  \"protein\": 31,\n  \"carbs\": 0,\n  \"fat\": 3.6\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/foods",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "foods"]
+						},
+						"description": "Tạo food mới (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Food By ID (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/foods/{{foodId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "foods", "{{foodId}}"]
+						},
+						"description": "Lấy food theo ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Food (Admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Chicken Breast\",\n  \"calories\": 170,\n  \"protein\": 32,\n  \"carbs\": 0,\n  \"fat\": 4\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/foods/{{foodId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "foods", "{{foodId}}"]
+						},
+						"description": "Cập nhật food (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Food (Admin)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/foods/{{foodId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "foods", "{{foodId}}"]
+						},
+						"description": "Xóa food (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý foods"
+		},
+		{
+			"name": "14. Transactions",
+			"item": [
+				{
+					"name": "Create Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}},\n  \"type\": \"EARNED\",\n  \"amount\": 100.0,\n  \"points\": 50,\n  \"reference\": \"Challenge completion\",\n  \"status\": \"COMPLETED\",\n  \"description\": \"Earned points from completing challenge\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Tạo transaction mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions"]
+						},
+						"description": "Lấy danh sách tất cả transactions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "{{transactionId}}"]
+						},
+						"description": "Lấy transaction theo ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}},\n  \"type\": \"SPENT\",\n  \"amount\": 50.0,\n  \"points\": 25,\n  \"reference\": \"Reward redemption\",\n  \"status\": \"COMPLETED\",\n  \"description\": \"Spent points on reward\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "{{transactionId}}"]
+						},
+						"description": "Cập nhật transaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "{{transactionId}}"]
+						},
+						"description": "Xóa transaction"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý transactions"
+		},
+		{
+			"name": "15. File Upload",
+			"item": [
+				{
+					"name": "Upload Video",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/files/upload-video",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "files", "upload-video"]
+						},
+						"description": "Upload video file"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/files/upload-image",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "files", "upload-image"]
+						},
+						"description": "Upload image file"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API upload files"
+		},
+		{
+			"name": "16. Admin - User Challenges",
+			"item": [
+				{
+					"name": "Get All User Challenges",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/user-challenges",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "user-challenges"]
+						},
+						"description": "Lấy danh sách tất cả user challenges (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Challenge By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/user-challenges/{{userChallengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "user-challenges", "{{userChallengeId}}"]
+						},
+						"description": "Lấy user challenge theo ID (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Challenge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}},\n  \"challengeId\": {{challengeId}},\n  \"status\": \"pending\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/user-challenges",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "user-challenges"]
+						},
+						"description": "Tạo user challenge mới (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Challenge",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": {{userId}},\n  \"challengeId\": {{challengeId}},\n  \"status\": \"success\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/user-challenges/{{userChallengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "user-challenges", "{{userChallengeId}}"]
+						},
+						"description": "Cập nhật user challenge (Admin only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Challenge",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/user-challenges/{{userChallengeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "user-challenges", "{{userChallengeId}}"]
+						},
+						"description": "Xóa user challenge (Admin only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Các API quản lý user challenges (Admin only)"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "JWT token từ login/register response"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT token của admin user"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "challengeId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "trainingPlanId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "goalId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "rewardId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "nutritionPlanId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "mealId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "foodId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "transactionId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "userChallengeId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
+

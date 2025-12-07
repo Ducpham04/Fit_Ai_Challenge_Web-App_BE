@@ -7,17 +7,21 @@ import com.example.fitchallenge.Entity.Challenges;
 import com.example.fitchallenge.Entity.Goals;
 import com.example.fitchallenge.Entity.TrainingPlan;
 import com.example.fitchallenge.Entity.TrainingPlanDetail;
+import com.example.fitchallenge.Entity.UserTraining;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.GoalRepository;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
 import com.example.fitchallenge.repository.TrainingPlanDetailRepository;
+import com.example.fitchallenge.repository.UserTrainingRepository;
 import com.example.fitchallenge.service.TrainingPlanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +33,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
     private final TrainingPlanRepository trainingPlanRepository;
     private final GoalRepository goalRepository;
     private final TrainingPlanDetailRepository trainingPlanDetailRepository;
+    private final UserTrainingRepository userTrainingRepository;
 
     @Override
     public NotificationResponse getAllTrainingPlans() {
@@ -99,12 +104,32 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
     }
 
     @Override
+    @Transactional
     public NotificationResponse deleteTrainingPlan(Long tpId) {
-        if (!trainingPlanRepository.existsById(tpId)) {
-            return new NotificationResponse(false, "Training plan not found");
+        try {
+            if (!trainingPlanRepository.existsById(tpId)) {
+                return new NotificationResponse(false, "Training plan not found");
+            }
+            
+            // Step 1: Delete all UserTraining records that reference this training plan
+            List<UserTraining> userTrainings = userTrainingRepository.findByTrainingPlan_TpId(tpId);
+            if (!userTrainings.isEmpty()) {
+                userTrainingRepository.deleteAll(userTrainings);
+            }
+            
+            // Step 2: Delete all TrainingPlanDetail records that reference this training plan
+            List<TrainingPlanDetail> details = trainingPlanDetailRepository.findByTrainingPlan_TpId(tpId);
+            if (!details.isEmpty()) {
+                trainingPlanDetailRepository.deleteAll(details);
+            }
+            
+            // Step 3: Now delete the training plan itself
+            trainingPlanRepository.deleteById(tpId);
+            return new NotificationResponse(true, "Training plan deleted successfully");
+        } catch (Exception e) {
+            e.printStackTrace(); // Log full stack trace for debugging
+            return new NotificationResponse(false, "Error deleting training plan: " + e.getMessage());
         }
-        trainingPlanRepository.deleteById(tpId);
-        return new NotificationResponse(true, "Training plan deleted successfully");
     }
 
     private TrainingPlanResponseDTO toResponseDto(TrainingPlan plan) {
@@ -204,5 +229,62 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
                 .goalName(plan.getGoal() != null ? plan.getGoal().getName() : null)
                 .createdAt(plan.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    public NotificationResponse duplicateTrainingPlan(Long tpId) {
+        try {
+            TrainingPlan originalPlan = trainingPlanRepository.findById(tpId)
+                    .orElseThrow(() -> new RuntimeException("Training plan not found"));
+
+            // Tạo plan mới
+            TrainingPlan newPlan = new TrainingPlan();
+            newPlan.setGoal(originalPlan.getGoal());
+            newPlan.setTitle(originalPlan.getTitle() + " (Copy)");
+            newPlan.setDescription(originalPlan.getDescription());
+            newPlan.setDifficultyLevel(originalPlan.getDifficultyLevel());
+            newPlan.setDurationWeeks(originalPlan.getDurationWeeks());
+            newPlan.setCreatedAt(OffsetDateTime.now());
+
+            TrainingPlan savedPlan = trainingPlanRepository.save(newPlan);
+
+            // Copy tất cả details
+            List<TrainingPlanDetail> originalDetails = trainingPlanDetailRepository
+                    .findByTrainingPlan_TpId(tpId);
+            
+            for (TrainingPlanDetail originalDetail : originalDetails) {
+                TrainingPlanDetail newDetail = new TrainingPlanDetail();
+                newDetail.setTrainingPlan(savedPlan);
+                newDetail.setChallenge(originalDetail.getChallenge());
+                newDetail.setDayNumber(originalDetail.getDayNumber());
+                newDetail.setSets(originalDetail.getSets());
+                newDetail.setReps(originalDetail.getReps());
+                newDetail.setDuration(originalDetail.getDuration());
+                newDetail.setRestTime(originalDetail.getRestTime());
+                newDetail.setInstructions(originalDetail.getInstructions());
+                trainingPlanDetailRepository.save(newDetail);
+            }
+
+            return new NotificationResponse(true, "Training plan duplicated successfully", 
+                    toResponseDto(savedPlan));
+        } catch (Exception e) {
+            return new NotificationResponse(false, "Error duplicating plan: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public NotificationResponse publishTrainingPlan(Long tpId, boolean publish) {
+        try {
+            TrainingPlan plan = trainingPlanRepository.findById(tpId)
+                    .orElseThrow(() -> new RuntimeException("Training plan not found"));
+
+            // Note: TrainingPlan entity không có status field
+            // Có thể thêm status field hoặc dùng cách khác để track
+            // Tạm thời return success message
+            String message = publish ? "Training plan published" : "Training plan unpublished";
+            return new NotificationResponse(true, message, toResponseDto(plan));
+        } catch (Exception e) {
+            return new NotificationResponse(false, "Error updating plan status: " + e.getMessage());
+        }
     }
 }

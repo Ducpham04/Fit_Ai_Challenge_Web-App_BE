@@ -17,7 +17,7 @@ public interface UserService {
     JwtResponse login(LoginRequest loginRequest);
     UserDetails loadUserByEmail(String username);
     NotificationResponse getAllUsers();
-    Page<UserDTO> getAllUsersPaginated(String status, String role, Pageable pageable);
+    Page<UserDTO> getAllUsersPaginated(String status, String role, String search, Pageable pageable);
     UserDTO getUserById(Long id);
     UserDTO getUserByEmail(String email) ;
     UserProfileDTO getUserProfile(Long userId);
