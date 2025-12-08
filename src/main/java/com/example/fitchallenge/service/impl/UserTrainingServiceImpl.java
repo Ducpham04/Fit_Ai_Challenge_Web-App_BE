@@ -9,6 +9,9 @@ import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
 import com.example.fitchallenge.repository.User.UserRepository;
 import com.example.fitchallenge.repository.UserTrainingRepository;
+import com.example.fitchallenge.repository.PersonalizedPlanDetailRepository;
+import com.example.fitchallenge.repository.DailyTrainingLogRepository;
+import com.example.fitchallenge.repository.TrainingPlanDetailRepository;
 import com.example.fitchallenge.service.PersonalizationService;
 import com.example.fitchallenge.service.UserTrainingService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,9 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     private final UserRepository userRepository;
     private final TrainingPlanRepository trainingPlanRepository;
     private final PersonalizationService personalizationService;
+    private final PersonalizedPlanDetailRepository personalizedPlanDetailRepository;
+    private final DailyTrainingLogRepository dailyTrainingLogRepository;
+    private final TrainingPlanDetailRepository trainingPlanDetailRepository;
     @Override
     public NotificationResponse getUserTrainingDetails(Long userId) {
 
@@ -98,7 +104,8 @@ public class UserTrainingServiceImpl implements UserTrainingService {
 
         UserTrainingDTO dto = new UserTrainingDTO();
 
-        dto.setId(userTraining.getUtId());
+        dto.setId(userTraining.getUtId()); // utId (UserTraining ID)
+        dto.setTrainingPlanId(userTraining.getTrainingPlan().getTpId()); // Training Plan template ID
         dto.setName(userTraining.getTrainingPlan().getTitle());
         dto.setStartDate(userTraining.getStartDate());
         dto.setEndDate(userTraining.getEndDate());
@@ -143,12 +150,25 @@ public class UserTrainingServiceImpl implements UserTrainingService {
             userTraining.setStatus("active");
             
             UserTraining savedUserTraining = userTrainingRepository.save(userTraining);
+            System.out.println("✅ [UserTrainingService] UserTraining saved successfully, utId: " + savedUserTraining.getUtId());
             
             // Create PersonalizedPlanDetail for this user training
-            NotificationResponse personalizationResponse = personalizationService.createPersonalizedPlanDetails(savedUserTraining.getUtId());
-            if (!personalizationResponse.isSuccess()) {
-                // Log warning but don't fail the entire operation
-                System.out.println("Warning: Could not create personalized plan details: " + personalizationResponse.getMessage());
+            // Sử dụng try-catch riêng để không ảnh hưởng đến transaction chính
+            NotificationResponse personalizationResponse;
+            try {
+                System.out.println("🔄 [UserTrainingService] Creating personalized plan details...");
+                personalizationResponse = personalizationService.createPersonalizedPlanDetails(savedUserTraining.getUtId());
+                if (personalizationResponse.isSuccess()) {
+                    System.out.println("✅ [UserTrainingService] Personalized plan details created successfully");
+                } else {
+                    System.out.println("⚠️ [UserTrainingService] Could not create personalized plan details: " + personalizationResponse.getMessage());
+                }
+            } catch (Exception e) {
+                System.err.println("❌ [UserTrainingService] Exception creating personalized plan details: " + e.getMessage());
+                e.printStackTrace();
+                // Tạo response lỗi nhưng không throw exception để không rollback transaction chính
+                personalizationResponse = new NotificationResponse(false, 
+                        "Could not create personalized plan details: " + e.getMessage());
             }
             
             // Return response in FE format
@@ -160,6 +180,9 @@ public class UserTrainingServiceImpl implements UserTrainingService {
             response.put("startDate", start.toString());
             response.put("endDate", end.toString());
             response.put("personalized", personalizationResponse.isSuccess());
+            if (!personalizationResponse.isSuccess()) {
+                response.put("personalizationError", personalizationResponse.getMessage());
+            }
             
             return new NotificationResponse(true, "Training plan started successfully", response);
         } catch (Exception e) {
@@ -194,6 +217,73 @@ public class UserTrainingServiceImpl implements UserTrainingService {
             return new NotificationResponse(true, "Users following training plan retrieved successfully", usersList);
         } catch (Exception e) {
             return new NotificationResponse(false, "Error retrieving users: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Xóa training plan của user
+     * Chỉ user sở hữu mới có thể xóa
+     * Xóa cascade: PersonalizedPlanDetail, DailyTrainingLog
+     */
+    @Override
+    @Transactional
+    public NotificationResponse deleteUserTraining(Long utId, Long userId) {
+        try {
+            // Tìm UserTraining
+            UserTraining userTraining = userTrainingRepository.findById(utId)
+                    .orElseThrow(() -> new RuntimeException("UserTraining not found with id: " + utId));
+
+            // Kiểm tra quyền sở hữu - chỉ user sở hữu mới có thể xóa
+            if (!userTraining.getUser().getId().equals(userId)) {
+                return new NotificationResponse(false, 
+                        "Unauthorized: You can only delete your own training plan");
+            }
+
+            Long trainingPlanId = userTraining.getTrainingPlan().getTpId();
+
+            // 1. Xóa PersonalizedPlanDetail liên quan
+            // Lấy tất cả TrainingPlanDetail của training plan này để biết các challenge nào thuộc plan này
+            List<com.example.fitchallenge.Entity.TrainingPlanDetail> templateDetails = 
+                    trainingPlanDetailRepository.findByTrainingPlan_TpId(trainingPlanId);
+            
+            // Lấy danh sách challenge IDs trong training plan này
+            java.util.Set<Long> challengeIdsInPlan = templateDetails.stream()
+                    .map(tpd -> tpd.getChallenge() != null ? tpd.getChallenge().getId() : null)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(java.util.stream.Collectors.toSet());
+            
+            // Lấy tất cả PersonalizedPlanDetail của user
+            List<com.example.fitchallenge.Entity.PersonalizedPlanDetail> allPersonalizedDetails = 
+                    personalizedPlanDetailRepository.findByUser_Id(userId);
+            
+            // Lọc chỉ những cái có challenge thuộc training plan này
+            List<com.example.fitchallenge.Entity.PersonalizedPlanDetail> personalizedDetailsToDelete = 
+                    allPersonalizedDetails.stream()
+                            .filter(ppd -> ppd.getChallenge() != null && 
+                                    challengeIdsInPlan.contains(ppd.getChallenge().getId()))
+                            .collect(java.util.stream.Collectors.toList());
+            
+            personalizedPlanDetailRepository.deleteAll(personalizedDetailsToDelete);
+            System.out.println("✅ Deleted " + personalizedDetailsToDelete.size() + " personalized plan details");
+
+            // 2. Xóa DailyTrainingLog liên quan
+            List<com.example.fitchallenge.Entity.DailyTrainingLog> dailyLogs = 
+                    dailyTrainingLogRepository.findByUser_IdAndTrainingPlan_TpId(userId, trainingPlanId);
+            dailyTrainingLogRepository.deleteAll(dailyLogs);
+            System.out.println("✅ Deleted " + dailyLogs.size() + " daily training logs");
+
+            // 3. Xóa UserTraining
+            userTrainingRepository.delete(userTraining);
+            System.out.println("✅ Deleted UserTraining with id: " + utId);
+
+            return new NotificationResponse(true, 
+                    "Training plan deleted successfully. Removed " + 
+                    personalizedDetailsToDelete.size() + " personalized details and " + 
+                    dailyLogs.size() + " daily logs.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new NotificationResponse(false, 
+                    "Error deleting training plan: " + e.getMessage());
         }
     }
 }

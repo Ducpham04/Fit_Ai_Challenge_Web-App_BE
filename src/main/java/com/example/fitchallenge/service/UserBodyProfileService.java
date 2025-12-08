@@ -8,3 +8,4 @@ public interface UserBodyProfileService {
     NotificationResponse getBodyProfile(Long userId);
 }
 
+

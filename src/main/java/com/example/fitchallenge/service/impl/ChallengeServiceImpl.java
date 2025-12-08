@@ -52,6 +52,11 @@ public class ChallengeServiceImpl implements ChallengeService {
             challenge.setDescription(dto.getDescription());
             challenge.setDifficult(Challenges.DifficultLevel.valueOf(dto.getDifficult()));
             challenge.setStatus(Challenges.Status.valueOf(dto.getStatus()));
+            
+            // Set exercise type (AI model)
+            if (dto.getExerciseType() != null && !dto.getExerciseType().trim().isEmpty()) {
+                challenge.setExerciseType(dto.getExerciseType().trim());
+            }
 
 //            if (image != null && !image.isEmpty()) {
 //                String imagePath = fileStorageService.uploadFile(image);
@@ -99,6 +104,11 @@ public class ChallengeServiceImpl implements ChallengeService {
                 challenge.setDifficult(Challenges.DifficultLevel.valueOf(dto.getDifficult()));
             if (dto.getStatus() != null)
                 challenge.setStatus(Challenges.Status.valueOf(dto.getStatus()));
+            
+            // Update exercise type (AI model)
+            if (dto.getExerciseType() != null) {
+                challenge.setExerciseType(dto.getExerciseType().trim());
+            }
 
 //            if (image != null && !image.isEmpty()) {
 //                String imagePath = fileStorageService.uploadFile(image);

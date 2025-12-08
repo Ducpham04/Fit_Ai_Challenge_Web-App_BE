@@ -2,12 +2,18 @@ package com.example.fitchallenge.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entity lưu reps/time/exercise tùy chỉnh theo từng user
+ * Entity: PersonalizedPlanDetail
+ * 👉 Chức năng: Lưu trữ bài tập đã được cá nhân hóa cho từng user
+ * Dựa trên thông tin từ Health Profile, hệ thống sẽ chọn template phù hợp
+ * và tạo plan cá nhân hóa với các bài tập từ training plan
+ * 
+ * Video sẽ được lấy từ Challenge entity thông qua challengeId
  */
 @Entity
 @Table(name = "personalized_plan_detail")
@@ -15,37 +21,91 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PersonalizedPlanDetail {
 
+    /**
+     * 🔑 Mã bản ghi (Primary Key, tự tăng)
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ppd_id")
-    private Long ppdId;
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "ut_id", nullable = false)
-    private UserTraining userTraining; // FK to UserTraining (ut_id)
+    /**
+     * 🔗 Reference đến TrainingPlanDetail template (nullable, optional)
+     * Dùng để track xem personalized detail này được tạo từ template nào
+     * 
+     * ⚠️ QUAN TRỌNG: Field này KHÔNG phải auto increment
+     * Giá trị được set từ template.getTpdId() khi tạo PersonalizedPlanDetail
+     * Dùng để UI hiển thị đúng challenge gốc và map với template
+     */
+    @Column(name = "tpd_id", nullable = true)
+    private Long tpdId;
 
-    @ManyToOne
-    @JoinColumn(name = "tpd_id", nullable = false)
-    private TrainingPlanDetail trainingPlanDetail; // FK to TrainingPlanDetail (tpd_id)
+    /**
+     * 🔗 Reference đến UserTraining (ut_id)
+     * Dùng để track xem personalized detail này thuộc UserTraining nào
+     * 
+     * ⚠️ QUAN TRỌNG: Field này KHÔNG phải auto increment
+     * Giá trị được set từ userTraining.getUtId() khi tạo PersonalizedPlanDetail
+     */
+    @Column(name = "ut_id", nullable = true)
+    private Long utId;
 
-    @Column(name = "custom_reps")
-    private Integer customReps;
+    /**
+     * 👤 Người dùng (khóa ngoại → users.user_id)
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "custom_time")
-    private Integer customTime; // seconds
+    /**
+     * 📅 Số ngày trong kế hoạch (Day 1, Day 2, ...)
+     */
+    @Column(name = "day_number", nullable = false)
+    private Integer dayNumber;
 
-    @Column(name = "custom_distance")
-    private Double customDistance; // km
+    /**
+     * 🎯 Thử thách (khóa ngoại → challenges.challenge_id)
+     * Dùng để lấy video từ Challenge entity
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "challenge_id", nullable = false)
+    private Challenges challenge;
 
-    @Column(name = "exercise_variant", length = 200)
-    private String exerciseVariant; // ví dụ: "burpee low-impact"
+    /**
+     * 🏋️ Tên bài tập
+     * Ví dụ: "Push Up", "Squat", "Pull Up"
+     */
+    @Column(name = "exercise_name", nullable = false, length = 200)
+    private String exerciseName;
 
-    @Column(name = "intensity_level")
-    private Integer intensityLevel; // 1-10
+    /**
+     * 🔁 Số hiệp (sets)
+     */
+    @Column(name = "sets", nullable = false)
+    private Integer sets;
 
-    @Column(name = "note", columnDefinition = "TEXT")
-    private String note;
+    /**
+     * 🔂 Số lần lặp trong mỗi hiệp (reps)
+     */
+    @Column(name = "reps", nullable = false)
+    private Integer reps;
+
+    /**
+     * 📊 Độ khó
+     * Ví dụ: "EASY", "MEDIUM", "HARD"
+     */
+    @Column(name = "difficulty", length = 50, nullable = false)
+    private String difficulty;
+
+    /**
+     * 💪 Nhóm cơ mục tiêu
+     * Ví dụ: "Chest", "Legs", "Back", "Arms", "Core"
+     */
+    @Column(name = "target_muscle", length = 100)
+    private String targetMuscle;
 }
+
 

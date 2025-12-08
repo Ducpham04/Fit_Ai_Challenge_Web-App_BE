@@ -131,17 +131,183 @@ public class BodyMetricsCalculator {
     }
 
     /**
+     * Tính TDEE (Total Daily Energy Expenditure) - tương đương với Recommended Calories
+     * TDEE = BMR × Activity Multiplier
+     */
+    public static BigDecimal calculateTDEE(BigDecimal bmr, String activityLevel) {
+        return calculateRecommendedCalories(bmr, activityLevel);
+    }
+
+    /**
+     * Tính Body Fat % sử dụng Navy Body Fat Formula (rất chính xác)
+     * 
+     * Nam: BF% = 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450
+     * Nữ: BF% = 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(height)) - 450
+     * 
+     * @param heightCm Chiều cao (cm)
+     * @param waistCm Vòng eo (cm)
+     * @param neckCm Vòng cổ (cm)
+     * @param hipCm Vòng hông (cm) - chỉ cần cho nữ, có thể null cho nam
+     * @param gender Giới tính (MALE/FEMALE)
+     * @return Body Fat % (0-100)
+     */
+    public static BigDecimal calculateNavyBodyFat(
+            BigDecimal heightCm, 
+            BigDecimal waistCm, 
+            BigDecimal neckCm, 
+            BigDecimal hipCm, 
+            String gender) {
+        
+        if (heightCm == null || waistCm == null || neckCm == null ||
+            heightCm.compareTo(BigDecimal.ZERO) <= 0 ||
+            waistCm.compareTo(BigDecimal.ZERO) <= 0 ||
+            neckCm.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        String genderLower = gender != null ? gender.toLowerCase().trim() : "";
+        boolean isMale = genderLower.equals("male") || genderLower.equals("nam") || genderLower.equals("m");
+
+        // Chuyển sang inches (Navy formula dùng inches)
+        BigDecimal heightIn = heightCm.divide(new BigDecimal("2.54"), 2, RoundingMode.HALF_UP);
+        BigDecimal waistIn = waistCm.divide(new BigDecimal("2.54"), 2, RoundingMode.HALF_UP);
+        BigDecimal neckIn = neckCm.divide(new BigDecimal("2.54"), 2, RoundingMode.HALF_UP);
+
+        BigDecimal bodyFat;
+        
+        if (isMale) {
+            // Nam: BF% = 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450
+            BigDecimal waistNeckDiff = waistIn.subtract(neckIn);
+            if (waistNeckDiff.compareTo(BigDecimal.ZERO) <= 0) {
+                return BigDecimal.ZERO;
+            }
+            
+            double logWaistNeck = Math.log10(waistNeckDiff.doubleValue());
+            double logHeight = Math.log10(heightIn.doubleValue());
+            
+            double denominator = 1.0324 - 0.19077 * logWaistNeck + 0.15456 * logHeight;
+            if (denominator <= 0) {
+                return BigDecimal.ZERO;
+            }
+            
+            bodyFat = new BigDecimal(495.0 / denominator - 450.0);
+        } else {
+            // Nữ: BF% = 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(height)) - 450
+            if (hipCm == null || hipCm.compareTo(BigDecimal.ZERO) <= 0) {
+                return BigDecimal.ZERO; // Cần hip cho nữ
+            }
+            
+            BigDecimal hipIn = hipCm.divide(new BigDecimal("2.54"), 2, RoundingMode.HALF_UP);
+            BigDecimal waistHipNeck = waistIn.add(hipIn).subtract(neckIn);
+            if (waistHipNeck.compareTo(BigDecimal.ZERO) <= 0) {
+                return BigDecimal.ZERO;
+            }
+            
+            double logWaistHipNeck = Math.log10(waistHipNeck.doubleValue());
+            double logHeight = Math.log10(heightIn.doubleValue());
+            
+            double denominator = 1.29579 - 0.35004 * logWaistHipNeck + 0.22100 * logHeight;
+            if (denominator <= 0) {
+                return BigDecimal.ZERO;
+            }
+            
+            bodyFat = new BigDecimal(495.0 / denominator - 450.0);
+        }
+
+        // Giới hạn body fat trong khoảng 0-100%
+        if (bodyFat.compareTo(BigDecimal.ZERO) < 0) {
+            bodyFat = BigDecimal.ZERO;
+        } else if (bodyFat.compareTo(new BigDecimal("100")) > 0) {
+            bodyFat = new BigDecimal("100");
+        }
+
+        return bodyFat.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Tính Lean Body Mass (LBM) - Khối lượng cơ nạc
+     * LBM = Weight × (1 - BodyFat% / 100)
+     * 
+     * @param weightKg Cân nặng (kg)
+     * @param bodyFatPercent Body Fat % (0-100)
+     * @return Lean Body Mass (kg)
+     */
+    public static BigDecimal calculateLeanBodyMass(BigDecimal weightKg, BigDecimal bodyFatPercent) {
+        if (weightKg == null || bodyFatPercent == null ||
+            weightKg.compareTo(BigDecimal.ZERO) <= 0 ||
+            bodyFatPercent.compareTo(BigDecimal.ZERO) < 0 ||
+            bodyFatPercent.compareTo(new BigDecimal("100")) > 0) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal fatRatio = bodyFatPercent.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
+        BigDecimal leanRatio = BigDecimal.ONE.subtract(fatRatio);
+        
+        return weightKg.multiply(leanRatio).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Tính Body Fat % từ BMI (ước tính, ít chính xác hơn Navy method)
+     * 
+     * Nam: BF% = (1.20 × BMI) + (0.23 × Age) - 16.2
+     * Nữ: BF% = (1.20 × BMI) + (0.23 × Age) - 5.4
+     */
+    public static BigDecimal estimateBodyFatFromBMI(BigDecimal bmi, Integer age, String gender) {
+        if (bmi == null || age == null || gender == null ||
+            bmi.compareTo(BigDecimal.ZERO) <= 0 || age <= 0) {
+            return BigDecimal.ZERO;
+        }
+
+        String genderLower = gender.toLowerCase().trim();
+        boolean isMale = genderLower.equals("male") || genderLower.equals("nam") || genderLower.equals("m");
+
+        BigDecimal baseBF = bmi.multiply(new BigDecimal("1.20"))
+                .add(new BigDecimal(age).multiply(new BigDecimal("0.23")));
+
+        if (isMale) {
+            baseBF = baseBF.subtract(new BigDecimal("16.2"));
+        } else {
+            baseBF = baseBF.subtract(new BigDecimal("5.4"));
+        }
+
+        // Giới hạn trong khoảng 0-100%
+        if (baseBF.compareTo(BigDecimal.ZERO) < 0) {
+            baseBF = BigDecimal.ZERO;
+        } else if (baseBF.compareTo(new BigDecimal("100")) > 0) {
+            baseBF = new BigDecimal("100");
+        }
+
+        return baseBF.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /**
      * Class để trả về kết quả tính toán
      */
     public static class BodyMetricsResult {
         private final BigDecimal bmi;
         private final BigDecimal bmr;
         private final BigDecimal recommendedCalories;
+        private final BigDecimal tdee;
+        private final BigDecimal bodyFat;
+        private final BigDecimal leanBodyMass;
 
         public BodyMetricsResult(BigDecimal bmi, BigDecimal bmr, BigDecimal recommendedCalories) {
             this.bmi = bmi;
             this.bmr = bmr;
             this.recommendedCalories = recommendedCalories;
+            this.tdee = recommendedCalories; // TDEE = Recommended Calories
+            this.bodyFat = null;
+            this.leanBodyMass = null;
+        }
+
+        public BodyMetricsResult(BigDecimal bmi, BigDecimal bmr, BigDecimal recommendedCalories, 
+                                BigDecimal bodyFat, BigDecimal leanBodyMass) {
+            this.bmi = bmi;
+            this.bmr = bmr;
+            this.recommendedCalories = recommendedCalories;
+            this.tdee = recommendedCalories;
+            this.bodyFat = bodyFat;
+            this.leanBodyMass = leanBodyMass;
         }
 
         public BigDecimal getBmi() {
@@ -154,6 +320,18 @@ public class BodyMetricsCalculator {
 
         public BigDecimal getRecommendedCalories() {
             return recommendedCalories;
+        }
+
+        public BigDecimal getTdee() {
+            return tdee;
+        }
+
+        public BigDecimal getBodyFat() {
+            return bodyFat;
+        }
+
+        public BigDecimal getLeanBodyMass() {
+            return leanBodyMass;
         }
     }
 }

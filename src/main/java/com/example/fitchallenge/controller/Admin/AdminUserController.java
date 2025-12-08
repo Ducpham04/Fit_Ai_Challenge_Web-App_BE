@@ -4,6 +4,7 @@ import com.example.fitchallenge.DTO.user.RegisterRequestAdmin;
 import com.example.fitchallenge.DTO.user.UserDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.service.UserService;
+import com.example.fitchallenge.service.PersonalizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ public class AdminUserController {
     private final com.example.fitchallenge.service.BodyMetricHistoryService bodyMetricHistoryService;
     private final com.example.fitchallenge.service.UserInfoService userInfoService;
     private final com.example.fitchallenge.service.UserTrainingService userTrainingService;
+    private final PersonalizationService personalizationService;
 
     /**
      * Get all users với pagination và filters
@@ -125,6 +127,45 @@ public class AdminUserController {
     public ResponseEntity<NotificationResponse> getUserTrainingPlans(@PathVariable Long id) {
         NotificationResponse response = userTrainingService.getUserTrainingDetails(id);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * GET /api/admin/users/{userId}/training-plans/{utId}/personalized-details
+     * Lấy tất cả PersonalizedPlanDetail của user cho một UserTraining cụ thể
+     * Admin có thể xem và chỉnh sửa personalized plan của user
+     */
+    @GetMapping("/{userId}/training-plans/{utId}/personalized-details")
+    public ResponseEntity<NotificationResponse> getUserPersonalizedPlanDetails(
+            @PathVariable Long userId,
+            @PathVariable Long utId) {
+        try {
+            NotificationResponse response = personalizationService.getAllPersonalizedPlanDetails(userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(new NotificationResponse(false, 
+                    "Error retrieving personalized plan details: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * PUT /api/admin/users/{userId}/training-plans/{utId}/personalized-details/{ppdId}
+     * Admin chỉnh sửa PersonalizedPlanDetail của user
+     */
+    @PutMapping("/{userId}/training-plans/{utId}/personalized-details/{ppdId}")
+    public ResponseEntity<NotificationResponse> updateUserPersonalizedPlanDetail(
+            @PathVariable Long userId,
+            @PathVariable Long utId,
+            @PathVariable Long ppdId,
+            @RequestBody com.example.fitchallenge.DTO.PersonalizedPlanDetailDTO.PersonalizedPlanDetailResponse request) {
+        try {
+            NotificationResponse response = personalizationService.updatePersonalizedPlanDetail(ppdId, request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(new NotificationResponse(false, 
+                    "Error updating personalized plan detail: " + e.getMessage()));
+        }
     }
 }
 

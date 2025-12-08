@@ -8,4 +8,10 @@ public interface UserTrainingService {
     NotificationResponse createUserTraining(UserRequestDTO res);
     NotificationResponse startTrainingPlan(Long trainingPlanId, Long userId, String startDate);
     NotificationResponse getUsersFollowingTrainingPlan(Long trainingPlanId);
+    
+    /**
+     * Xóa training plan của user (chỉ user sở hữu mới có thể xóa)
+     * Xóa cascade: PersonalizedPlanDetail, DailyTrainingLog
+     */
+    NotificationResponse deleteUserTraining(Long utId, Long userId);
 }

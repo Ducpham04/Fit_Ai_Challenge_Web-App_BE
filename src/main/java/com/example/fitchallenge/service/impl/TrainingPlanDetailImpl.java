@@ -107,7 +107,8 @@ public class TrainingPlanDetailImpl implements TrainingPlanDetailService {
                 detail.getChallenge().getDescription(),
                 detail.getChallenge().getDifficult().toString(),
                 detail.getChallenge().getLinkVideos(),
-                detail.getChallenge().getStatus().toString()
+                detail.getChallenge().getStatus().toString(),
+                detail.getChallenge().getExerciseType() // Add exerciseType
         );
 
         TrainingPlanDetailResponse dto = new TrainingPlanDetailResponse();

@@ -7,6 +7,10 @@ import java.util.List;
 
 public interface TrainingPlanDetailRepository extends JpaRepository<TrainingPlanDetail, Long> {
     List<TrainingPlanDetail> findByTrainingPlan_TpId(Long tpId);
-
-
+    List<TrainingPlanDetail> findByTrainingPlan_TpIdAndDayNumber(Long tpId, Integer dayNumber);
+    
+    /**
+     * Tìm TrainingPlanDetail theo trainingPlanId và challengeId
+     */
+    java.util.Optional<TrainingPlanDetail> findByTrainingPlan_TpIdAndChallenge_Id(Long tpId, Long challengeId);
 }

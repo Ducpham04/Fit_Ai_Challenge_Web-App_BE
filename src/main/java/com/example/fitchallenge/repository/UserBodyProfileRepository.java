@@ -12,3 +12,4 @@ public interface UserBodyProfileRepository extends JpaRepository<UserBodyProfile
     boolean existsByUser_Id(Long userId);
 }
 
+
