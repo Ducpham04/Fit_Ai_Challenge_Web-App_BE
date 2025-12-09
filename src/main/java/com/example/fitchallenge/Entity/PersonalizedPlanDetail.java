@@ -106,6 +106,13 @@ public class PersonalizedPlanDetail {
      */
     @Column(name = "target_muscle", length = 100)
     private String targetMuscle;
+
+    /**
+     * 🔥 Calories ước tính cho bài tập này (dựa trên sets, reps, duration)
+     * Được tính tự động khi tạo personalized plan
+     */
+    @Column(name = "estimated_calories")
+    private Integer estimatedCalories;
 }
 
 

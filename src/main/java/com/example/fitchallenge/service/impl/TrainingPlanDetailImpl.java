@@ -43,6 +43,9 @@ public class TrainingPlanDetailImpl implements TrainingPlanDetailService {
             detail.setDayNumber(dto.getDayNumber());
             detail.setSets(dto.getSets());
             detail.setReps(dto.getReps());
+            if (dto.getDuration() != null) detail.setDuration(dto.getDuration());
+            if (dto.getRestTime() != null) detail.setRestTime(dto.getRestTime());
+            if (dto.getInstructions() != null) detail.setInstructions(dto.getInstructions());
 
             trainingPlanDetailRepository.save(detail);
             return new NotificationResponse(true, "Detail created successfully", toResponse(detail));
@@ -63,6 +66,9 @@ public class TrainingPlanDetailImpl implements TrainingPlanDetailService {
             if (dto.getDayNumber() != null) detail.setDayNumber(dto.getDayNumber());
             if (dto.getSets() != null) detail.setSets(dto.getSets());
             if (dto.getReps() != null) detail.setReps(dto.getReps());
+            if (dto.getDuration() != null) detail.setDuration(dto.getDuration());
+            if (dto.getRestTime() != null) detail.setRestTime(dto.getRestTime());
+            if (dto.getInstructions() != null) detail.setInstructions(dto.getInstructions());
 
             if (dto.getChallengeId() != null) {
                 challengeRepository.findById(dto.getChallengeId()).ifPresent(detail::setChallenge);
@@ -97,6 +103,15 @@ public class TrainingPlanDetailImpl implements TrainingPlanDetailService {
         List<TrainingPlanDetailResponse> details = trainingPlanDetailRepository.findByTrainingPlan_TpId(planId)
                 .stream().map(this::toResponse).toList();
         return new NotificationResponse(true, "Details by plan id", details);
+    }
+
+    @Override
+    public NotificationResponse getDetailById(Long id) {
+        Optional<TrainingPlanDetail> detailOpt = trainingPlanDetailRepository.findById(id);
+        if (detailOpt.isEmpty()) {
+            return new NotificationResponse(false, "Detail not found");
+        }
+        return new NotificationResponse(true, "Detail found", toResponse(detailOpt.get()));
     }
 
     private TrainingPlanDetailResponse toResponse(TrainingPlanDetail detail) {

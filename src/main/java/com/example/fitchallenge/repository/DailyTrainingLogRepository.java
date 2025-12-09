@@ -2,12 +2,9 @@ package com.example.fitchallenge.repository;
 
 import com.example.fitchallenge.Entity.DailyTrainingLog;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface DailyTrainingLogRepository extends JpaRepository<DailyTrainingLog, Long> {
     
@@ -28,8 +25,9 @@ public interface DailyTrainingLogRepository extends JpaRepository<DailyTrainingL
     
     /**
      * Lấy daily training log của một user cho một challenge cụ thể
+     * Trả về List để xử lý trường hợp có duplicate records
      */
-    Optional<DailyTrainingLog> findByUser_IdAndTrainingPlan_TpIdAndDayNumberAndChallenge_Id(
+    List<DailyTrainingLog> findByUser_IdAndTrainingPlan_TpIdAndDayNumberAndChallenge_Id(
         Long userId, 
         Long trainingPlanId, 
         Integer dayNumber, 
@@ -55,4 +53,6 @@ public interface DailyTrainingLogRepository extends JpaRepository<DailyTrainingL
      */
     long countByUser_IdAndTrainingPlan_TpIdAndStatus(Long userId, Long trainingPlanId, String status);
 }
+
+
 

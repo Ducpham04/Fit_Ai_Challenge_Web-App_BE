@@ -42,45 +42,67 @@ public class UserServiceImpl implements UserService {
     private final UserTrainingRepository userTrainingRepository;
     private final UserNutritionRepository userNutritionRepository;
     private final TrainingPlanDetailRepository trainingPlanDetailRepository;
+    private final InformationBodyUserRepository informationBodyUserRepository;
+    private final DailyTrainingLogRepository dailyTrainingLogRepository;
     @Override
     public JwtResponse register(RegisterRequestAdmin registerRequestAdmin) {
-        // 1. Check email tồn tại
-        if(userRepository.existsByEmail(registerRequestAdmin.getEmail())) {
+        // 1. Validate input
+        if (registerRequestAdmin.getEmail() == null || registerRequestAdmin.getEmail().trim().isEmpty()) {
+            throw new RuntimeException("Email is required");
+        }
+        if (registerRequestAdmin.getFullName() == null || registerRequestAdmin.getFullName().trim().isEmpty()) {
+            throw new RuntimeException("Full name is required");
+        }
+        if (registerRequestAdmin.getPassword() == null || registerRequestAdmin.getPassword().trim().isEmpty()) {
+            throw new RuntimeException("Password is required");
+        }
+        if (registerRequestAdmin.getPassword().length() < 6) {
+            throw new RuntimeException("Password must be at least 6 characters");
+        }
+        
+        // 2. Check email tồn tại
+        if(userRepository.existsByEmail(registerRequestAdmin.getEmail().trim())) {
             throw new RuntimeException("Email đã tồn tại!");
         }
 
         // 3. Lấy role theo roleId từ request, default = 2 (USER) nếu null
-        Role role = roleRepository.findById(registerRequestAdmin.getRoleId() != null ? registerRequestAdmin.getRoleId() : 2)
-                .orElseThrow(() -> new RuntimeException("Role không tồn tại"));
+        Long roleId = registerRequestAdmin.getRoleId() != null ? registerRequestAdmin.getRoleId() : 2L;
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role không tồn tại (ID: " + roleId + "). Vui lòng đảm bảo role USER (ID=2) đã được tạo trong database."));
 
         // 4. Tạo user mới
         User user = new User();
-        user.setUserName(registerRequestAdmin.getFullName()); // bắt buộc không trùng
-        System.out.println(registerRequestAdmin.getFullName());
-        user.setEmail(registerRequestAdmin.getEmail());
+        user.setUserName(registerRequestAdmin.getFullName().trim());
+        user.setEmail(registerRequestAdmin.getEmail().trim().toLowerCase());
         user.setPassword(passwordEncoder.encode(registerRequestAdmin.getPassword()));
         user.setRole(role);
-       // user.setLinkImage(registerRequestAdmin.getLinkImage());
+        user.setStatus("active"); // Set default status
+        user.setPoints(0); // Set default points
         Date now = new java.util.Date();
         user.setCreateAt(now);
         user.setUpdatedAt(now);
         user.setLastLoginAt(now);
 
         // 5. Save vào DB
-        User savedUser = userRepository.save(user);
-        
-        // 6. Generate tokens and return response
-        String token = jwtTokenProvider.generateToken(savedUser.getEmail(), savedUser.getRole().getRoleName());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail());
-        
-        JwtResponse.UserInfoDTO userInfo = new JwtResponse.UserInfoDTO(
-                savedUser.getId(),
-                savedUser.getEmail(),
-                savedUser.getUserName(),
-                savedUser.getRole().getRoleName()
-        );
-        
-        return new JwtResponse(token, refreshToken, userInfo);
+        try {
+            User savedUser = userRepository.save(user);
+            
+            // 6. Generate tokens and return response
+            String token = jwtTokenProvider.generateToken(savedUser.getEmail(), savedUser.getRole().getRoleName());
+            String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser.getEmail());
+            
+            JwtResponse.UserInfoDTO userInfo = new JwtResponse.UserInfoDTO(
+                    savedUser.getId(),
+                    savedUser.getEmail(),
+                    savedUser.getUserName(),
+                    savedUser.getRole().getRoleName()
+            );
+            
+            return new JwtResponse(token, refreshToken, userInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save user: " + e.getMessage());
+        }
     }
 
 
@@ -417,36 +439,66 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserGoalsDTO buildUserGoalsDTO(Long userId) {
-        // Lấy goals từ UserNutrition (nếu có)
-        List<UserNutrition> userNutritions = userNutritionRepository.findAll()
-                .stream()
-                .filter(un -> un.getUser().getId().equals(userId) && "active".equals(un.getStatus()))
-                .collect(Collectors.toList());
+        // Lấy InformationBodyUser để lấy goals và recommended calories
+        List<InformationBodyUser> bodyInfoList = informationBodyUserRepository.findByUserId(userId);
+        InformationBodyUser bodyInfo = bodyInfoList.isEmpty() ? null : bodyInfoList.get(0);
 
+        // Lấy dailyCalories từ InformationBodyUser (recommendedCalories) hoặc UserNutrition
         Integer dailyCalories = null;
-        if (!userNutritions.isEmpty()) {
-            UserNutrition activeNutrition = userNutritions.get(0);
-            if (activeNutrition.getNutritionPlan() != null && 
-                activeNutrition.getNutritionPlan().getCaloriesPerDay() != null) {
-                dailyCalories = activeNutrition.getNutritionPlan().getCaloriesPerDay();
+        if (bodyInfo != null && bodyInfo.getRecommendedCalories() != null) {
+            dailyCalories = bodyInfo.getRecommendedCalories().intValue();
+        } else {
+            // Fallback: Lấy từ UserNutrition
+            List<UserNutrition> userNutritions = userNutritionRepository.findAll()
+                    .stream()
+                    .filter(un -> un.getUser().getId().equals(userId) && "active".equals(un.getStatus()))
+                    .collect(Collectors.toList());
+
+            if (!userNutritions.isEmpty()) {
+                UserNutrition activeNutrition = userNutritions.get(0);
+                if (activeNutrition.getNutritionPlan() != null && 
+                    activeNutrition.getNutritionPlan().getCaloriesPerDay() != null) {
+                    dailyCalories = activeNutrition.getNutritionPlan().getCaloriesPerDay();
+                }
             }
         }
 
-        // Tính weeklyWorkouts từ UserTraining
+        // Tính weeklyWorkouts từ DailyTrainingLog (completed challenges trong tuần này)
         LocalDate weekStart = LocalDate.now().with(DayOfWeek.MONDAY);
-        long weeklyWorkouts = userTrainingRepository.findUserTrainingDetailsByUserId(userId)
+        LocalDate weekEnd = weekStart.plusDays(6);
+        
+        long weeklyWorkouts = dailyTrainingLogRepository.findByUser_Id(userId)
                 .stream()
-                .filter(ut -> ut.getStartDate() != null && 
-                             !ut.getStartDate().isBefore(weekStart))
+                .filter(log -> log.getTrainingDate() != null &&
+                             !log.getTrainingDate().isBefore(weekStart) &&
+                             !log.getTrainingDate().isAfter(weekEnd) &&
+                             "completed".equalsIgnoreCase(log.getStatus()))
+                .map(log -> log.getTrainingDate()) // Get unique dates
+                .distinct()
                 .count();
 
-        // monthlyDistance có thể tính từ training plans (nếu có thông tin distance)
-        Integer monthlyDistance = null; // Cần thêm logic tính toán nếu có field distance
+        // Tính monthlyDistance từ DailyTrainingLog (nếu có actualDurationMinutes, có thể estimate)
+        // For now, set to null as we don't have distance data
+        Integer monthlyDistance = null;
+
+        // Lấy goal name từ InformationBodyUser
+        String goalName = null;
+        Long goalId = null;
+        if (bodyInfo != null && bodyInfo.getGoals() != null) {
+            goalName = bodyInfo.getGoals().getName();
+            goalId = bodyInfo.getGoals().getId();
+        }
+
+        // Set default weekly workouts target
+        Integer weeklyWorkoutsTarget = 5; // Default target: 5 workouts per week
 
         return UserGoalsDTO.builder()
                 .weeklyWorkouts((int) weeklyWorkouts)
+                .weeklyWorkoutsTarget(weeklyWorkoutsTarget)
                 .dailyCalories(dailyCalories)
                 .monthlyDistance(monthlyDistance)
+                .goalName(goalName)
+                .goalId(goalId)
                 .build();
     }
 
@@ -595,6 +647,18 @@ public class UserServiceImpl implements UserService {
         return getUserById(savedUser.getId());
     }
     
+    @Override
+    public UserDTO updateUserAvatar(Long id, String avatarUrl) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setLinkImage(avatarUrl);
+        user.setUpdatedAt(new Date());
+        User savedUser = userRepository.save(user);
+        
+        return getUserById(savedUser.getId());
+    }
+
     @Override
     public NotificationResponse deleteUser(Long id) {
         if (!userRepository.existsById(id)) {

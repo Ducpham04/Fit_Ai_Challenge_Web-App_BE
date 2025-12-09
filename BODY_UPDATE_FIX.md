@@ -50,3 +50,5 @@ ADD COLUMN IF NOT EXISTS recommended_calories DECIMAL(8,0);
 
 
 
+
+

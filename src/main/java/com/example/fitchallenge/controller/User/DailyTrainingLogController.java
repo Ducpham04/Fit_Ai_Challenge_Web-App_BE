@@ -171,11 +171,23 @@ public class DailyTrainingLogController {
                     " - " + response.getMessage());
             
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            System.err.println("❌ [DailyTrainingLogController] IllegalArgumentException: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(
+                new NotificationResponse(false, "Invalid request: " + e.getMessage())
+            );
+        } catch (RuntimeException e) {
+            System.err.println("❌ [DailyTrainingLogController] RuntimeException: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(
+                new NotificationResponse(false, e.getMessage())
+            );
         } catch (Exception e) {
             System.err.println("❌ [DailyTrainingLogController] Exception occurred:");
             e.printStackTrace();
             return ResponseEntity.status(500).body(
-                new NotificationResponse(false, "Error: " + e.getMessage())
+                new NotificationResponse(false, "Internal server error: " + e.getMessage())
             );
         }
     }

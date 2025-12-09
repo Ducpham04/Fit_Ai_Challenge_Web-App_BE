@@ -66,6 +66,11 @@ public class PersonalizedPlanDetailResponse {
      * Tên challenge (từ Challenge.title)
      */
     private String challengeName;
+
+    /**
+     * Calories ước tính cho bài tập này
+     */
+    private Integer estimatedCalories;
 }
 
 

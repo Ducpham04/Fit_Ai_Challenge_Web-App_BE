@@ -5,6 +5,7 @@ import com.example.fitchallenge.Entity.*;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.*;
 import com.example.fitchallenge.service.PersonalizationService;
+import com.example.fitchallenge.utils.CaloriesCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +27,7 @@ public class PersonalizationServiceImpl implements PersonalizationService {
     private final UserTrainingRepository userTrainingRepository;
     private final TrainingPlanDetailRepository trainingPlanDetailRepository;
     private final HealthProfileRepository healthProfileRepository;
+    private final InformationBodyUserRepository informationBodyUserRepository;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -322,8 +325,29 @@ public class PersonalizationServiceImpl implements PersonalizationService {
             targetMuscle = "Full Body"; // Default value
         }
         
+        // Get user weight for calories calculation
+        BigDecimal userWeightKg = null;
+        List<InformationBodyUser> bodyInfoList = informationBodyUserRepository.findByUserId(user.getId());
+        if (!bodyInfoList.isEmpty()) {
+            InformationBodyUser bodyInfo = bodyInfoList.get(0);
+            userWeightKg = bodyInfo.getWeightKg();
+        }
+
+        // Estimate duration from sets and reps (average 2-3 minutes per set including rest)
+        Integer estimatedDurationMinutes = personalizedSets * 3; // 3 minutes per set (including rest)
+
+        // Calculate estimated calories
+        Integer estimatedCalories = CaloriesCalculator.calculateCalories(
+                challenge.getExerciseType(),
+                estimatedDurationMinutes,
+                personalizedSets,
+                personalizedReps,
+                userWeightKg
+        );
+
         System.out.println("🔨 [PersonalizationService] Building PersonalizedPlanDetail: day=" + template.getDayNumber() + 
-                ", exercise=" + exerciseName + ", sets=" + personalizedSets + ", reps=" + personalizedReps);
+                ", exercise=" + exerciseName + ", sets=" + personalizedSets + ", reps=" + personalizedReps +
+                ", estimatedCalories=" + estimatedCalories);
 
         PersonalizedPlanDetail result = PersonalizedPlanDetail.builder()
                 .tpdId(template.getTpdId()) // ⚠️ QUAN TRỌNG: Set tpdId để reference đến template gốc
@@ -336,6 +360,7 @@ public class PersonalizationServiceImpl implements PersonalizationService {
                 .reps(personalizedReps)
                 .difficulty(difficulty)
                 .targetMuscle(targetMuscle)
+                .estimatedCalories(estimatedCalories) // ✅ Calculate and save estimated calories
                 .build();
         
         System.out.println("🔗 [PersonalizationService] Linked to template tpdId: " + template.getTpdId() + ", utId: " + utId);
@@ -554,6 +579,9 @@ public class PersonalizationServiceImpl implements PersonalizationService {
             response.setVideoUrl(challenge.getLinkVideos()); // Video từ Challenge
             response.setChallengeName(challenge.getTitle());
         }
+        
+        // Set estimated calories
+        response.setEstimatedCalories(ppd.getEstimatedCalories());
         
         return response;
     }

@@ -59,3 +59,5 @@ public class DailyTrainingLogResponse {
     private ZonedDateTime updatedAt;
 }
 
+
+

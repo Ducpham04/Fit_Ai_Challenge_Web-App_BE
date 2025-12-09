@@ -103,10 +103,12 @@ public class SecurityConfig {
                                 "/api/admin/users/**",
                                 "/api/users/**",
                                 "/api/user/**",
+                                "/api/admin/data-seeder/import-all",
                                 "/uploads/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/admin/**"
+
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );

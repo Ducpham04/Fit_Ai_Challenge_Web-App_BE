@@ -24,5 +24,6 @@ public interface UserService {
     FullUserProfileDTO getFullUserProfile(Long userId);
     UserDTO createUser(RegisterRequestAdmin request);
     UserDTO updateUser(Long id, RegisterRequestAdmin request);
+    UserDTO updateUserAvatar(Long id, String avatarUrl);
     NotificationResponse deleteUser(Long id);
 }

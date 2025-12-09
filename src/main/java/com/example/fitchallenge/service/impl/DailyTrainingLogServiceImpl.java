@@ -3,20 +3,24 @@ package com.example.fitchallenge.service.impl;
 import com.example.fitchallenge.DTO.DailyTrainingLogDTO.DailyTrainingLogResponse;
 import com.example.fitchallenge.Entity.Challenges;
 import com.example.fitchallenge.Entity.DailyTrainingLog;
+import com.example.fitchallenge.Entity.InformationBodyUser;
 import com.example.fitchallenge.Entity.TrainingPlan;
 import com.example.fitchallenge.Entity.TrainingPlanDetail;
 import com.example.fitchallenge.Entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.DailyTrainingLogRepository;
+import com.example.fitchallenge.repository.InformationBodyUserRepository;
 import com.example.fitchallenge.repository.TrainingPlanDetailRepository;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
 import com.example.fitchallenge.repository.User.UserRepository;
 import com.example.fitchallenge.repository.ChallengeRepository;
 import com.example.fitchallenge.service.DailyTrainingLogService;
+import com.example.fitchallenge.utils.CaloriesCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +36,7 @@ public class DailyTrainingLogServiceImpl implements DailyTrainingLogService {
     private final TrainingPlanRepository trainingPlanRepository;
     private final TrainingPlanDetailRepository trainingPlanDetailRepository;
     private final ChallengeRepository challengeRepository;
+    private final InformationBodyUserRepository informationBodyUserRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -179,10 +184,58 @@ public class DailyTrainingLogServiceImpl implements DailyTrainingLogService {
             Challenges challenge = challengeRepository.findById(challengeId)
                     .orElseThrow(() -> new RuntimeException("Challenge not found with id: " + challengeId));
 
-            // Try to find existing log
-            DailyTrainingLog log = dailyTrainingLogRepository
-                    .findByUser_IdAndTrainingPlan_TpIdAndDayNumberAndChallenge_Id(userId, trainingPlanId, dayNumber, challengeId)
-                    .orElse(null);
+            // Get user weight for calories calculation
+            BigDecimal userWeightKg = null;
+            List<InformationBodyUser> bodyInfoList = informationBodyUserRepository.findByUserId(userId);
+            if (!bodyInfoList.isEmpty()) {
+                InformationBodyUser bodyInfo = bodyInfoList.get(0);
+                userWeightKg = bodyInfo.getWeightKg();
+            }
+
+            // Calculate calories burned
+            Integer calculatedCalories = null;
+            if (actualDurationMinutes != null || (setsCompleted != null && repsCompleted != null)) {
+                calculatedCalories = CaloriesCalculator.calculateCaloriesFromLog(
+                        actualDurationMinutes,
+                        setsCompleted,
+                        repsCompleted,
+                        challenge.getExerciseType(),
+                        userWeightKg
+                );
+            }
+
+            // Try to find existing log(s) - handle duplicate records
+            List<DailyTrainingLog> existingLogs = dailyTrainingLogRepository
+                    .findByUser_IdAndTrainingPlan_TpIdAndDayNumberAndChallenge_Id(userId, trainingPlanId, dayNumber, challengeId);
+            
+            DailyTrainingLog log = null;
+            if (!existingLogs.isEmpty()) {
+                if (existingLogs.size() > 1) {
+                    // Nếu có duplicate records, lấy record mới nhất và xóa các record cũ
+                    System.out.println("⚠️ [DailyTrainingLogService] Found " + existingLogs.size() + 
+                            " duplicate records for userId=" + userId + 
+                            ", trainingPlanId=" + trainingPlanId + 
+                            ", dayNumber=" + dayNumber + 
+                            ", challengeId=" + challengeId);
+                    
+                    // Sort by createdAt descending (newest first)
+                    existingLogs.sort((a, b) -> {
+                        if (a.getCreatedAt() == null && b.getCreatedAt() == null) return 0;
+                        if (a.getCreatedAt() == null) return 1;
+                        if (b.getCreatedAt() == null) return -1;
+                        return b.getCreatedAt().compareTo(a.getCreatedAt());
+                    });
+                    
+                    // Keep the newest one, delete the rest
+                    log = existingLogs.get(0);
+                    for (int i = 1; i < existingLogs.size(); i++) {
+                        System.out.println("🗑️ [DailyTrainingLogService] Deleting duplicate record dtlId=" + existingLogs.get(i).getDtlId());
+                        dailyTrainingLogRepository.delete(existingLogs.get(i));
+                    }
+                } else {
+                    log = existingLogs.get(0);
+                }
+            }
 
             if (log == null) {
                 // Create new log
@@ -198,6 +251,7 @@ public class DailyTrainingLogServiceImpl implements DailyTrainingLogService {
                         .score(score) // ✅ FIX: Lưu score
                         .confidence(confidence) // ✅ FIX: Lưu confidence
                         .actualDurationMinutes(actualDurationMinutes) // ✅ FIX: Lưu duration
+                        .caloriesBurned(calculatedCalories) // ✅ Calculate and save calories
                         .build();
                 
                 if ("completed".equals(status)) {
@@ -221,12 +275,16 @@ public class DailyTrainingLogServiceImpl implements DailyTrainingLogService {
                 if (actualDurationMinutes != null) {
                     log.setActualDurationMinutes(actualDurationMinutes);
                 }
+                // Update calories if we have new data
+                if (calculatedCalories != null) {
+                    log.setCaloriesBurned(calculatedCalories);
+                }
                 if ("completed".equals(status)) {
                     log.setCompletedAt(java.time.ZonedDateTime.now());
                 }
             }
 
-            dailyTrainingLogRepository.save(log);
+            DailyTrainingLog savedLog = dailyTrainingLogRepository.save(log);
             
             System.out.println("✅ [DailyTrainingLogService] Saved DailyTrainingLog: " + 
                     "userId=" + userId + 
@@ -237,9 +295,12 @@ public class DailyTrainingLogServiceImpl implements DailyTrainingLogService {
                     ", repsCompleted=" + repsCompleted +
                     ", setsCompleted=" + setsCompleted);
 
+            // Convert to DTO to avoid circular reference and deep nesting
+            DailyTrainingLogResponse responseDTO = convertToResponseDTO(savedLog, trainingPlan);
+            
             return new NotificationResponse(true, 
                     "Daily training log saved successfully", 
-                    log);
+                    responseDTO);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("❌ [DailyTrainingLogService] Error saving daily training log: " + e.getMessage());
@@ -247,6 +308,56 @@ public class DailyTrainingLogServiceImpl implements DailyTrainingLogService {
                     "Error saving daily training log: " + e.getMessage(), 
                     null);
         }
+    }
+
+    /**
+     * Convert DailyTrainingLog entity to response DTO (simple version without template)
+     * This avoids circular reference and deep nesting issues
+     */
+    private DailyTrainingLogResponse convertToResponseDTO(DailyTrainingLog log, TrainingPlan trainingPlan) {
+        DailyTrainingLogResponse response = new DailyTrainingLogResponse();
+        
+        response.setDtlId(log.getDtlId());
+        response.setUserId(log.getUser() != null ? log.getUser().getId() : null);
+        response.setTrainingPlanId(log.getTrainingPlan() != null ? log.getTrainingPlan().getTpId() : null);
+        response.setTrainingPlanTitle(trainingPlan != null ? trainingPlan.getTitle() : null);
+        response.setTrainingDate(log.getTrainingDate());
+        response.setDayNumber(log.getDayNumber());
+        
+        // Challenge information
+        if (log.getChallenge() != null) {
+            response.setChallengeId(log.getChallenge().getId());
+            response.setChallengeName(log.getChallenge().getTitle());
+            response.setChallengeTitle(log.getChallenge().getTitle());
+            response.setChallengeDescription(log.getChallenge().getDescription());
+            response.setDifficulty(log.getChallenge().getDifficult() != null ? log.getChallenge().getDifficult().name() : null);
+            response.setVideoUrl(log.getChallenge().getLinkVideos());
+            response.setExerciseType(log.getChallenge().getExerciseType());
+        }
+        
+        // Status and progress
+        response.setStatus(log.getStatus());
+        response.setActualDurationMinutes(log.getActualDurationMinutes());
+        response.setCaloriesBurned(log.getCaloriesBurned());
+        response.setSetsCompleted(log.getSetsCompleted());
+        response.setRepsCompleted(log.getRepsCompleted());
+        
+        // AI evaluation
+        response.setScore(log.getScore());
+        response.setConfidence(log.getConfidence());
+        
+        // User notes
+        response.setNotes(log.getNotes());
+        response.setPerceivedDifficulty(log.getPerceivedDifficulty());
+        response.setEffortLevel(log.getEffortLevel());
+        
+        // Timestamps
+        response.setStartedAt(log.getStartedAt());
+        response.setCompletedAt(log.getCompletedAt());
+        response.setCreatedAt(log.getCreatedAt());
+        response.setUpdatedAt(log.getUpdatedAt());
+        
+        return response;
     }
 
     /**

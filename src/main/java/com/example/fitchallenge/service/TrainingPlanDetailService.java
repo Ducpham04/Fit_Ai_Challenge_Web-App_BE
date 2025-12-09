@@ -10,4 +10,5 @@ public interface TrainingPlanDetailService {
     NotificationResponse deleteDetail(Long id);
     NotificationResponse getAllDetails();
     NotificationResponse getDetailsByPlanId(Long planId);
+    NotificationResponse getDetailById(Long id);
 }
