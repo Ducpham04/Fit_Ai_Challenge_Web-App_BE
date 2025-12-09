@@ -7,6 +7,13 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:root}
     password: ${SPRING_DATASOURCE_PASSWORD:123456}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
 
   jpa:
     hibernate:
@@ -15,7 +22,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
 
   devtools:
     restart:
@@ -24,12 +30,17 @@ spring:
         - src/main/java
         - src/main/resources
 
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
 server:
   port: 8080
+  shutdown: graceful
 
 logging:
   level:
     root: INFO
     com.fit: DEBUG
+    com.zaxxer.hikari: INFO
 
 

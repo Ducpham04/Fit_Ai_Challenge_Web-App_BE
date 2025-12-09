@@ -1,0 +1,54 @@
+# AWS Lambda Environment Variables Template
+# Copy các biến này vào Lambda Console → Configuration → Environment variables
+
+# ============================================
+# DATABASE CONFIGURATION
+# ============================================
+SPRING_DATASOURCE_URL=jdbc:mysql://your-rds-endpoint:3306/fit_challenge?useSSL=true&requireSSL=false&serverTimezone=UTC
+SPRING_DATASOURCE_USERNAME=admin
+SPRING_DATASOURCE_PASSWORD=your-database-password
+
+# ============================================
+# JWT CONFIGURATION
+# ============================================
+JWT_SECRET=your-jwt-secret-key-here-min-32-characters
+JWT_EXPIRATION=8640000
+
+# ============================================
+# CORS CONFIGURATION
+# ============================================
+# Comma-separated list of allowed origins
+# Example: https://yourdomain.com,https://www.yourdomain.com,https://api.yourdomain.com
+CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
+
+# ============================================
+# JPA CONFIGURATION
+# ============================================
+SPRING_JPA_HIBERNATE_DDL_AUTO=update
+SPRING_JPA_SHOW_SQL=false
+
+# ============================================
+# UPLOAD CONFIGURATION (Optional)
+# ============================================
+UPLOAD_PATH=uploads/
+
+# ============================================
+# LOGGING (Optional)
+# ============================================
+# LOGGING_LEVEL_ROOT=INFO
+# LOGGING_LEVEL_COM_EXAMPLE_FITCHALLENGE=DEBUG
+
+# ============================================
+# NOTES
+# ============================================
+# 1. Thay thế tất cả các giá trị placeholder (your-*) bằng giá trị thực tế
+# 2. Đảm bảo JWT_SECRET có ít nhất 32 ký tự
+# 3. CORS_ALLOWED_ORIGINS phải match với frontend domain
+# 4. SPRING_JPA_HIBERNATE_DDL_AUTO nên là "update" cho production
+# 5. SPRING_JPA_SHOW_SQL nên là "false" cho production
+
+
+
+
+
+
