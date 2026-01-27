@@ -7,21 +7,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="Role_user")
+@Table(name="roles")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Role {
     @Id
-    @Column(name="Role_id")
+    @Column(name="role_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="Role_name")
+    @Column(name="role_name")
     private String roleName;
 
-    @Column(name="Description")
+    @Column(name="description")
     private String  description;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)

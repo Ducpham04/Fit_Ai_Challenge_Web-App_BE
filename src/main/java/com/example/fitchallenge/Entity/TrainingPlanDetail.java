@@ -1,8 +1,17 @@
 package com.example.fitchallenge.Entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+
 @Table(name = "training_plan_details")
 public class TrainingPlanDetail {
     // Mô tả bảng lưu trữ kế hoạch từng ngày
@@ -33,100 +42,17 @@ public class TrainingPlanDetail {
     // 🔂 Số lần lặp trong mỗi hiệp (có thể null nếu không áp dụng)
     @Column(name = "reps")
     private Integer reps;
-    
+
     // ⏱️ Thời lượng tập (tính bằng giây)
     @Column(name = "duration")
     private Integer duration;
-    
+
     // ⏸️ Thời gian nghỉ giữa các hiệp (tính bằng giây)
     @Column(name = "rest_time")
     private Integer restTime;
-    
+
     // 📝 Hướng dẫn tập luyện
     @Column(name = "instructions", columnDefinition = "TEXT")
     private String instructions;
 
-    // 🧱 Constructors
-    public TrainingPlanDetail() {}
-
-    public TrainingPlanDetail(TrainingPlan trainingPlan, Integer dayNumber, Challenges challenge, Integer sets, Integer reps) {
-        this.trainingPlan = trainingPlan;
-        this.dayNumber = dayNumber;
-        this.challenge = challenge;
-        this.sets = sets;
-        this.reps = reps;
-    }
-
-    // 🧩 Getters và Setters
-    public Long getTpdId() {
-        return tpdId;
-    }
-
-    public void setTpdId(Long tpdId) {
-        this.tpdId = tpdId;
-    }
-
-    public TrainingPlan getTrainingPlan() {
-        return trainingPlan;
-    }
-
-    public void setTrainingPlan(TrainingPlan trainingPlan) {
-        this.trainingPlan = trainingPlan;
-    }
-
-    public Integer getDayNumber() {
-        return dayNumber;
-    }
-
-    public void setDayNumber(Integer dayNumber) {
-        this.dayNumber = dayNumber;
-    }
-
-    public Challenges getChallenge() {
-        return challenge;
-    }
-
-    public void setChallenge(Challenges challenge) {
-        this.challenge = challenge;
-    }
-
-    public Integer getSets() {
-        return sets;
-    }
-
-    public void setSets(Integer sets) {
-        this.sets = sets;
-    }
-
-    public Integer getReps() {
-        return reps;
-    }
-
-    public void setReps(Integer reps) {
-        this.reps = reps;
-    }
-    
-    public Integer getDuration() {
-        return duration;
-    }
-    
-    public void setDuration(Integer duration) {
-        this.duration = duration;
-    }
-    
-    public Integer getRestTime() {
-        return restTime;
-    }
-    
-    public void setRestTime(Integer restTime) {
-        this.restTime = restTime;
-    }
-    
-    public String getInstructions() {
-        return instructions;
-    }
-    
-    public void setInstructions(String instructions) {
-        this.instructions = instructions;
-    }
 }

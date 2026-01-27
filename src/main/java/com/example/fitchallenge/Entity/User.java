@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name="User")
+@Table(name="user")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,37 +19,39 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="User_Id")
+    @Column(name="user_id")
     private Long id;
-    @Column(name="UserName")
+    @Column(name="user_name")
     private String userName ;
-    @Column(name="Email")
+    @Column(name="email")
     private String email ;
 
-    @Column(name="Password")
+    @Column(name="password")
     private String password ;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<InformationBodyUser> informationbodyuser;
 
     @ManyToOne
-    @JoinColumn(name="Role_id")
+    @JoinColumn(name="role_id")
     private Role role;
 
 
-    @Column(name="Link_Image")
+    @Column(name="link_image")
     private String linkImage ;
+
+    @Column(name ="create_at")
     private Date CreateAt ;
     
-    @Column(name="Updated_At")
+    @Column(name="updated_at")
     private Date updatedAt;
     
-    @Column(name="Last_Login_At")
+    @Column(name="last_login_at")
     private Date lastLoginAt;
     
-    @Column(name="Points")
+    @Column(name="points")
     private Integer points ;
-    @Column(name="Is_Active")
+    @Column(name="is_active")
     private String status ;
     
     @PreUpdate

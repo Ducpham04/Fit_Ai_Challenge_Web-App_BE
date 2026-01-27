@@ -29,7 +29,7 @@ public class AiModelEvent {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "event_id")
+    @Column(name = "ame_id")
     private Long id;
 
     /**

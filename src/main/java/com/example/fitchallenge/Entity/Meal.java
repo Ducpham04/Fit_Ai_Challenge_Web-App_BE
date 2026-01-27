@@ -73,6 +73,6 @@ public class Meal {
     @Column(name = "calories_estimate")
     private Integer caloriesEstimate;
 
-    @Column(name="Day_Number")
+    @Column(name="day_number")
     private Integer day;
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Challenges")
+@Table(name = "challenges")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,37 +25,37 @@ public class Challenges {
     @JoinColumn(name = "goal_id") // ✅ sửa ở đây
     private Goals goal;
 
-    @Column(name = "Name_Challenge")
+    @Column(name = "name_challenge")
     private String title;
 
-    @Column(name = "Description")
+    @Column(name = "description")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "DifficultLevel")
+    @Column(name = "difficultLevel")
     private DifficultLevel difficult;
 
     public enum DifficultLevel {
         EASY, MEDIUM, HARD
     }
 
-    @Column(name = "Link_Videos")
+    @Column(name = "link_videos")
     private String linkVideos;
-    
-    @Column(name = "Exercise_Type")
+
+    @Column(name = "exercise_type")
     private String exerciseType; // AI model/exercise type: push-up, squat, pull-up, sit-up, plank
-    
-    @Column(name = "Reward")
+
+    @Column(name = "reward")
     private String reward; // Reward description for completing challenge
 
     @Enumerated(EnumType.STRING)
-    @Column(name="Status")
+    @Column(name="status")
     private Status status;
 
     public enum  Status {
         ACTIVE, INACTIVE, DRAFT, COMPLETED
     }
-    
+
     // Helper method to convert linkVideos string to array
     public java.util.List<String> getVideoArray() {
         if (linkVideos == null || linkVideos.isEmpty()) {

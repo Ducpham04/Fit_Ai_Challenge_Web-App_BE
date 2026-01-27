@@ -74,7 +74,7 @@ public class Reward {
     @Column(name = "expire_At")
     private Date expireAt;
     
-    @Column (name = "Claimed")
+    @Column (name = "claimed")
     @Builder.Default
     private Integer claimed = 0;
     
