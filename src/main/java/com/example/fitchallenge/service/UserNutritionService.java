@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.UserNutritionDTO.UserNutritionRequest;
+import com.example.fitchallenge.dto.usernutritionfto.UserNutritionRequest;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface UserNutritionService {

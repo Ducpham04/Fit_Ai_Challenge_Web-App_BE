@@ -1,13 +1,13 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.TraningPlanDTO.TrainingPlanRequestDTO;
-import com.example.fitchallenge.DTO.TraningPlanDTO.TrainingPlanResponseDTO;
-import com.example.fitchallenge.DTO.TrainingPlanDTO.ExerciseDTO;
-import com.example.fitchallenge.Entity.Challenges;
-import com.example.fitchallenge.Entity.Goals;
-import com.example.fitchallenge.Entity.TrainingPlan;
-import com.example.fitchallenge.Entity.TrainingPlanDetail;
-import com.example.fitchallenge.Entity.UserTraining;
+import com.example.fitchallenge.dto.traningplandto.TrainingPlanRequest;
+import com.example.fitchallenge.dto.traningplandto.TrainingPlanResponse;
+import com.example.fitchallenge.dto.trainingplandto.ExerciseDTO;
+import com.example.fitchallenge.entity.Challenges;
+import com.example.fitchallenge.entity.Goals;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.TrainingPlanDetail;
+import com.example.fitchallenge.entity.UserTraining;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.GoalRepository;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
@@ -37,7 +37,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
 
     @Override
     public NotificationResponse getAllTrainingPlans() {
-        List<TrainingPlanResponseDTO> list = trainingPlanRepository.findAll().stream()
+        List<TrainingPlanResponse> list = trainingPlanRepository.findAll().stream()
                 .map(this::toResponseDto)
                 .toList();
         return new NotificationResponse(true, "All training plans retrieved successfully", list);
@@ -45,7 +45,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
 
     @Override
     public NotificationResponse getTrainingPlansByGoalId(Long goalId) {
-        List<TrainingPlanResponseDTO> list = trainingPlanRepository.findByGoalId(goalId).stream()
+        List<TrainingPlanResponse> list = trainingPlanRepository.findByGoalId(goalId).stream()
                 .map(this::toResponseDto)
                 .toList();
         return new NotificationResponse(true, "Training plans for goal ID: " + goalId, list);
@@ -61,7 +61,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
     }
 
     @Override
-    public NotificationResponse createTrainingPlan(TrainingPlanRequestDTO dto) {
+    public NotificationResponse createTrainingPlan(TrainingPlanRequest dto) {
         try {
             Optional<Goals> goalOpt = goalRepository.findById(dto.getGoalId());
             if (goalOpt.isEmpty()) {
@@ -83,7 +83,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
     }
 
     @Override
-    public NotificationResponse updateTrainingPlan(Long tpId, TrainingPlanRequestDTO dto) {
+    public NotificationResponse updateTrainingPlan(Long tpId, TrainingPlanRequest dto) {
         Optional<TrainingPlan> planOpt = trainingPlanRepository.findById(tpId);
         if (planOpt.isEmpty()) {
             return new NotificationResponse(false, "Training plan not found");
@@ -132,8 +132,8 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
         }
     }
 
-    private TrainingPlanResponseDTO toResponseDto(TrainingPlan plan) {
-        TrainingPlanResponseDTO dto = new TrainingPlanResponseDTO();
+    private TrainingPlanResponse toResponseDto(TrainingPlan plan) {
+        TrainingPlanResponse dto = new TrainingPlanResponse();
         dto.setTpId(plan.getTpId());
         dto.setGoalId(plan.getGoal() != null ? plan.getGoal().getId() : null);
         dto.setGoalName(plan.getGoal() != null ? plan.getGoal().getName() : null);
@@ -147,7 +147,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
     }
     
     @Override
-    public Page<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO> getAllTrainingPlansForUser(String difficulty, String status, Long goalId, Pageable pageable) {
+    public Page<com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO> getAllTrainingPlansForUser(String difficulty, String status, Long goalId, Pageable pageable) {
         List<TrainingPlan> allPlans = trainingPlanRepository.findAll();
         
         // Filter by difficulty
@@ -166,27 +166,27 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
         }
         
         // Map to DTOs with exercises
-        List<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO> dtos = allPlans.stream()
+        List<com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO> dtos = allPlans.stream()
                 .map(this::mapToNewTrainingPlanResponseDTO)
                 .collect(Collectors.toList());
         
         // Apply pagination
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), dtos.size());
-        List<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO> pagedDtos = dtos.subList(start, end);
+        List<com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO> pagedDtos = dtos.subList(start, end);
         
         return new PageImpl<>(pagedDtos, pageable, dtos.size());
     }
     
     @Override
-    public com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO getTrainingPlanByIdForUser(Long tpId) {
+    public com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO getTrainingPlanByIdForUser(Long tpId) {
         TrainingPlan plan = trainingPlanRepository.findById(tpId)
                 .orElseThrow(() -> new RuntimeException("Training plan not found"));
         
         return mapToNewTrainingPlanResponseDTO(plan);
     }
     
-    private com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO mapToNewTrainingPlanResponseDTO(TrainingPlan plan) {
+    private com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO mapToNewTrainingPlanResponseDTO(TrainingPlan plan) {
         // Get exercises from TrainingPlanDetail
         List<TrainingPlanDetail> details = trainingPlanDetailRepository.findByTrainingPlan_TpId(plan.getTpId());
         List<ExerciseDTO> exercises = details.stream()
@@ -216,7 +216,7 @@ public class TrainingPlanServiceImpl implements TrainingPlanService {
             else if (difficulty.contains("advanced")) difficulty = "Advanced";
         }
         
-        return com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO.builder()
+        return com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO.builder()
                 .id(plan.getTpId())
                 .title(plan.getTitle())
                 .description(plan.getDescription())

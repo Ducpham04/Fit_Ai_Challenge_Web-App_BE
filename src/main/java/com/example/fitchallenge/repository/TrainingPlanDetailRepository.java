@@ -1,6 +1,6 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.TrainingPlanDetail;
+import com.example.fitchallenge.entity.TrainingPlanDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

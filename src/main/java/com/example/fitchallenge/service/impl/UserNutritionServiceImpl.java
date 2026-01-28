@@ -1,14 +1,14 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.MealDTO.MealResponse;
-import com.example.fitchallenge.DTO.UserNutritionDTO.UserNutritionRequest;
-import com.example.fitchallenge.DTO.UserNutritionDTO.UserNutritionResponse;
-import com.example.fitchallenge.Entity.NutritionPlan;
-import com.example.fitchallenge.Entity.User;
-import com.example.fitchallenge.Entity.UserNutrition;
+import com.example.fitchallenge.dto.mealdto.MealResponse;
+import com.example.fitchallenge.dto.usernutritionfto.UserNutritionRequest;
+import com.example.fitchallenge.dto.usernutritionfto.UserNutritionResponse;
+import com.example.fitchallenge.entity.NutritionPlan;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.UserNutrition;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.NutritionPlanRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.repository.UserNutritionRepository;
 import com.example.fitchallenge.service.MealService;
 import com.example.fitchallenge.service.UserNutritionService;

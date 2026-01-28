@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.UserBodyProfileDTO.UserBodyProfileRequest;
+import com.example.fitchallenge.dto.userbodyprofiledto.UserBodyProfileRequest;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface UserBodyProfileService {

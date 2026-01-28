@@ -1,6 +1,6 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.UserBodyProfile;
+import com.example.fitchallenge.entity.UserBodyProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

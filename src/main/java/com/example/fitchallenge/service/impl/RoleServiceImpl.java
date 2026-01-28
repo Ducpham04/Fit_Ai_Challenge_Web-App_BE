@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.Entity.Role;
+import com.example.fitchallenge.entity.Role;
 import com.example.fitchallenge.repository.RoleRepository;
 import com.example.fitchallenge.service.RoleService;
 import lombok.RequiredArgsConstructor;

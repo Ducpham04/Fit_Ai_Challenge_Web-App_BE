@@ -1,6 +1,6 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.UserNutrition;
+import com.example.fitchallenge.entity.UserNutrition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

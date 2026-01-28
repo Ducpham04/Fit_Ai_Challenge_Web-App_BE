@@ -1,11 +1,11 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.user.JwtResponse;
-import com.example.fitchallenge.DTO.user.LoginRequest;
-import com.example.fitchallenge.DTO.user.RegisterRequestAdmin;
-import com.example.fitchallenge.DTO.user.UserDTO;
-import com.example.fitchallenge.DTO.user.userProfile.FullUserProfileDTO;
-import com.example.fitchallenge.DTO.user.userProfile.UserProfileDTO;
+import com.example.fitchallenge.dto.users.JwtResponse;
+import com.example.fitchallenge.dto.users.LoginRequest;
+import com.example.fitchallenge.dto.users.RegisterRequestAdmin;
+import com.example.fitchallenge.dto.users.UserDTO;
+import com.example.fitchallenge.dto.user.userprofile.FullUserProfileDTO;
+import com.example.fitchallenge.dto.user.userprofile.UserProfileDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 import org.springframework.security.core.userdetails.UserDetails;
 

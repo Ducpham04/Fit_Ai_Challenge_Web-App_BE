@@ -1,6 +1,6 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.UserChallenge;
+import com.example.fitchallenge.entity.UserChallenge;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

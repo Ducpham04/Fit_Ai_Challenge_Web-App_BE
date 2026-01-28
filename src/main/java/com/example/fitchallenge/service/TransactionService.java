@@ -1,7 +1,7 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.TransactionDTO.TransactionRequest;
-import com.example.fitchallenge.DTO.TransactionDTO.TransactionResponse;
+import com.example.fitchallenge.dto.transactiondto.TransactionRequest;
+import com.example.fitchallenge.dto.transactiondto.TransactionResponse;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface TransactionService {

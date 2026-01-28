@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.UserTrainingDTO.UserRequestDTO;
+import com.example.fitchallenge.dto.usertrainingdto.UserRequestDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface UserTrainingService {

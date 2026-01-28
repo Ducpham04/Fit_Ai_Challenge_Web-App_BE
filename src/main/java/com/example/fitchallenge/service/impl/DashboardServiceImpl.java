@@ -1,9 +1,15 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.DashboardDTO;
-import com.example.fitchallenge.Entity.*;
+import com.example.fitchallenge.entity.UserTraining;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.UserNutrition;
+import com.example.fitchallenge.entity.Reward;
+import com.example.fitchallenge.entity.UserChallenge;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.RewardRedemption;
+import com.example.fitchallenge.dto.DashboardDTO;
 import com.example.fitchallenge.repository.*;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -100,7 +106,7 @@ public class DashboardServiceImpl implements DashboardService {
         long totalChallenges = challengeRepository.count();
         long activeChallenges = challengeRepository.findAll().stream()
                 .filter(c -> c.getStatus() != null && 
-                        c.getStatus() == com.example.fitchallenge.Entity.Challenges.Status.ACTIVE)
+                        c.getStatus() == com.example.fitchallenge.entity.Challenges.Status.ACTIVE)
                 .count();
         
         List<UserChallenge> allSubmissions = userChallengeRepository.findAll();

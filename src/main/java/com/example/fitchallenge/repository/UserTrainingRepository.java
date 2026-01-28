@@ -1,7 +1,7 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.DTO.UserTrainingDTO.UserRequestDTO;
-import com.example.fitchallenge.Entity.UserTraining;
+import com.example.fitchallenge.dto.usertrainingdto.UserRequestDTO;
+import com.example.fitchallenge.entity.UserTraining;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

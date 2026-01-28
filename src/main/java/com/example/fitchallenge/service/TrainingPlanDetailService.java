@@ -1,7 +1,7 @@
 package com.example.fitchallenge.service;
 
 
-import com.example.fitchallenge.DTO.TrainingPlanDetailDTO.TrainingPlanDetailRequest;
+import com.example.fitchallenge.dto.trainingplandetaildto.TrainingPlanDetailRequest;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface TrainingPlanDetailService {

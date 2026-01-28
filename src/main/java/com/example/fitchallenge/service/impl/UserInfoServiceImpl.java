@@ -1,13 +1,13 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.UserInfoDTO;
-import com.example.fitchallenge.Entity.Goals;
-import com.example.fitchallenge.Entity.InformationBodyUser;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.dto.UserInfoDTO;
+import com.example.fitchallenge.entity.Goals;
+import com.example.fitchallenge.entity.InformationBodyUser;
+import com.example.fitchallenge.entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.GoalRepository;
 import com.example.fitchallenge.repository.InformationBodyUserRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.UserInfoService;
 import com.example.fitchallenge.utils.BodyMetricsCalculator;
 import lombok.RequiredArgsConstructor;

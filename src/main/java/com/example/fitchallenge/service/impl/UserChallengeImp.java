@@ -1,13 +1,13 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.UserChallengeDTO.UserChallengeDTO;
-import com.example.fitchallenge.Entity.Challenges;
-import com.example.fitchallenge.Entity.User;
-import com.example.fitchallenge.Entity.UserChallenge;
+import com.example.fitchallenge.dto.userchallengedto.UserChallengeDTO;
+import com.example.fitchallenge.entity.Challenges;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.UserChallenge;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.ChallengeRepository;
 import com.example.fitchallenge.repository.UserChallengeRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.UserChallengeService;
 
 

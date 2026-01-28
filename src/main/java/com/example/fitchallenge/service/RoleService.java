@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.Entity.Role;
+import com.example.fitchallenge.entity.Role;
 
 import java.util.List;
 

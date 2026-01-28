@@ -1,12 +1,12 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.TransactionDTO.TransactionRequest;
-import com.example.fitchallenge.DTO.TransactionDTO.TransactionResponse;
-import com.example.fitchallenge.Entity.Transaction;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.dto.transactiondto.TransactionRequest;
+import com.example.fitchallenge.dto.transactiondto.TransactionResponse;
+import com.example.fitchallenge.entity.Transaction;
+import com.example.fitchallenge.entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.TransactionRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

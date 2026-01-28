@@ -1,9 +1,9 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.Entity.Goals;
-import com.example.fitchallenge.Entity.NutritionPlan;
-import com.example.fitchallenge.DTO.NutritionPlanDTO.NutritionPlanRequest;
-import com.example.fitchallenge.DTO.NutritionPlanDTO.NutritionPlanResponse;
+import com.example.fitchallenge.entity.Goals;
+import com.example.fitchallenge.entity.NutritionPlan;
+import com.example.fitchallenge.dto.nutritionplandto.NutritionPlanRequest;
+import com.example.fitchallenge.dto.nutritionplandto.NutritionPlanResponse;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.GoalRepository;
 import com.example.fitchallenge.repository.NutritionPlanRepository;

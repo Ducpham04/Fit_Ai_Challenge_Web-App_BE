@@ -29,7 +29,7 @@ public interface PersonalizationService {
     /**
      * Admin cập nhật PersonalizedPlanDetail của user
      */
-    NotificationResponse updatePersonalizedPlanDetail(Long ppdId, com.example.fitchallenge.DTO.PersonalizedPlanDetailDTO.PersonalizedPlanDetailResponse request);
+    NotificationResponse updatePersonalizedPlanDetail(Long ppdId, com.example.fitchallenge.dto.personalizedplandetaildto.PersonalizedPlanDetailResponse request);
 }
 
 

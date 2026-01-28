@@ -1,11 +1,11 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.ChallengeDTO.ChallengeDTOPayload;
-import com.example.fitchallenge.DTO.TrainingPlanDetailDTO.TrainingPlanDetailRequest;
-import com.example.fitchallenge.DTO.TrainingPlanDetailDTO.TrainingPlanDetailResponse;
-import com.example.fitchallenge.Entity.Challenges;
-import com.example.fitchallenge.Entity.TrainingPlan;
-import com.example.fitchallenge.Entity.TrainingPlanDetail;
+import com.example.fitchallenge.dto.challengedto.ChallengePayloadDTO;
+import com.example.fitchallenge.dto.trainingplandetaildto.TrainingPlanDetailRequest;
+import com.example.fitchallenge.dto.trainingplandetaildto.TrainingPlanDetailResponse;
+import com.example.fitchallenge.entity.Challenges;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.TrainingPlanDetail;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.ChallengeRepository;
 import com.example.fitchallenge.repository.TrainingPlanDetailRepository;
@@ -116,7 +116,7 @@ public class TrainingPlanDetailImpl implements TrainingPlanDetailService {
 
     private TrainingPlanDetailResponse toResponse(TrainingPlanDetail detail) {
 
-        ChallengeDTOPayload challengeDTO = new ChallengeDTOPayload(
+        ChallengePayloadDTO challengeDTO = new ChallengePayloadDTO(
                 detail.getChallenge().getId(),
                 detail.getChallenge().getTitle(),
                 detail.getChallenge().getDescription(),

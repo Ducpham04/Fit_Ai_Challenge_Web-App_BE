@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.RewardRedemptionDTO.RewardRedemptionRequest;
+import com.example.fitchallenge.dto.rewardredemptiondto.RewardRedemptionRequest;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface RewardRedemptionService {

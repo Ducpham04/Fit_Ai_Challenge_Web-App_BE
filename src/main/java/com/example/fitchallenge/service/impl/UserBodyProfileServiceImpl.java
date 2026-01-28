@@ -1,11 +1,11 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.UserBodyProfileDTO.UserBodyProfileRequest;
-import com.example.fitchallenge.DTO.UserBodyProfileDTO.UserBodyProfileResponse;
-import com.example.fitchallenge.Entity.User;
-import com.example.fitchallenge.Entity.UserBodyProfile;
+import com.example.fitchallenge.dto.userbodyprofiledto.UserBodyProfileRequest;
+import com.example.fitchallenge.dto.userbodyprofiledto.UserBodyProfileResponse;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.UserBodyProfile;
 import com.example.fitchallenge.config.NotificationResponse;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.repository.UserBodyProfileRepository;
 import com.example.fitchallenge.service.UserBodyProfileService;
 import com.example.fitchallenge.utils.BodyMetricsCalculator;

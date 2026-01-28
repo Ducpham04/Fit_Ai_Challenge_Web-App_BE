@@ -1,6 +1,6 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.DailyTrainingLog;
+import com.example.fitchallenge.entity.DailyTrainingLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;

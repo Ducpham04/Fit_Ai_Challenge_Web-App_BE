@@ -2,9 +2,9 @@ package com.example.fitchallenge.service.impl;
 
 
 
-import com.example.fitchallenge.DTO.FoodDTO.FoodRequest;
-import com.example.fitchallenge.DTO.FoodDTO.FoodResponse;
-import com.example.fitchallenge.Entity.Food;
+import com.example.fitchallenge.dto.fooddto.FoodRequest;
+import com.example.fitchallenge.dto.fooddto.FoodResponse;
+import com.example.fitchallenge.entity.Food;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.FoodRepository;
 import com.example.fitchallenge.service.FoodService;

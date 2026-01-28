@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.BodyMetricHistoryDTO;
+import com.example.fitchallenge.dto.BodyMetricHistoryDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 
 import java.time.ZonedDateTime;

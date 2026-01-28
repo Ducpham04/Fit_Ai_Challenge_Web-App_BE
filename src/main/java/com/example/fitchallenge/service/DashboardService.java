@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.DashboardDTO;
+import com.example.fitchallenge.dto.DashboardDTO;
 
 public interface DashboardService {
     /**

@@ -1,15 +1,15 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.HealthProfileDTO.HealthProfileRequest;
-import com.example.fitchallenge.DTO.HealthProfileDTO.HealthProfileResponse;
-import com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO;
-import com.example.fitchallenge.Entity.HealthProfile;
-import com.example.fitchallenge.Entity.TrainingPlan;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.dto.healthprofiledto.HealthProfileRequest;
+import com.example.fitchallenge.dto.healthprofiledto.HealthProfileResponse;
+import com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO;
+import com.example.fitchallenge.entity.HealthProfile;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.HealthProfileRepository;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.HealthProfileService;
 import com.example.fitchallenge.utils.BodyMetricsCalculator;
 import lombok.RequiredArgsConstructor;

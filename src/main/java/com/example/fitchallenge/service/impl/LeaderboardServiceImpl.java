@@ -1,10 +1,10 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.LeaderboardDTO;
-import com.example.fitchallenge.Entity.User;
-import com.example.fitchallenge.Entity.UserChallenge;
+import com.example.fitchallenge.dto.LeaderboardDTO;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.UserChallenge;
 import com.example.fitchallenge.repository.UserChallengeRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.LeaderboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

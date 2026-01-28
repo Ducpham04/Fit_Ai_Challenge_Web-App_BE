@@ -1,7 +1,7 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.MealDTO.MealRequest;
-import com.example.fitchallenge.DTO.MealDTO.MealResponse;
+import com.example.fitchallenge.dto.mealdto.MealRequest;
+import com.example.fitchallenge.dto.mealdto.MealResponse;
 import com.example.fitchallenge.config.NotificationResponse;
 
 import java.util.List;

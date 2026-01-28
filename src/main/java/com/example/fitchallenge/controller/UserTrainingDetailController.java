@@ -1,6 +1,6 @@
 package com.example.fitchallenge.controller;
 
-import com.example.fitchallenge.DTO.UserTrainingDTO.UserRequestDTO;
+import com.example.fitchallenge.dto.usertrainingdto.UserRequestDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.service.UserTrainingService;
 import lombok.RequiredArgsConstructor;

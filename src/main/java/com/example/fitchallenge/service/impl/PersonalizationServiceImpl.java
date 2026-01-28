@@ -1,7 +1,13 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.PersonalizedPlanDetailDTO.PersonalizedPlanDetailResponse;
-import com.example.fitchallenge.Entity.*;
+import com.example.fitchallenge.entity.UserTraining;
+import com.example.fitchallenge.entity.PersonalizedPlanDetail;
+import com.example.fitchallenge.entity.TrainingPlanDetail;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.InformationBodyUser;
+import com.example.fitchallenge.entity.HealthProfile;
+import com.example.fitchallenge.entity.Challenges;
+import com.example.fitchallenge.dto.personalizedplandetaildto.PersonalizedPlanDetailResponse;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.*;
 import com.example.fitchallenge.service.PersonalizationService;

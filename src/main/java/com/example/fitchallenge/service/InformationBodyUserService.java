@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.InformationBodyDTO;
+import com.example.fitchallenge.dto.InformationBodyDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface InformationBodyUserService  {

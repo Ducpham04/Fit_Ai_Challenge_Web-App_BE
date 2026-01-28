@@ -1,7 +1,7 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.HealthProfileDTO.HealthProfileRequest;
-import com.example.fitchallenge.DTO.HealthProfileDTO.HealthProfileResponse;
+import com.example.fitchallenge.dto.healthprofiledto.HealthProfileRequest;
+import com.example.fitchallenge.dto.healthprofiledto.HealthProfileResponse;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface HealthProfileService {

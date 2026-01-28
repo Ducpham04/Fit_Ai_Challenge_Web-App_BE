@@ -1,7 +1,7 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.goalsDTO.goalsDTOpayload;
-import com.example.fitchallenge.Entity.Goals;
+import com.example.fitchallenge.dto.goalsdto.goalsDTOpayload;
+import com.example.fitchallenge.entity.Goals;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.GoalRepository;
 import com.example.fitchallenge.service.FileStorageService;

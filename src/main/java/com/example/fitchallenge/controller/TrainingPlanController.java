@@ -38,7 +38,7 @@ public class TrainingPlanController {
      * @return Page of TrainingPlanResponseDTO
      */
     @GetMapping
-    public ResponseEntity<Page<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO>> getAllTrainingPlans(
+    public ResponseEntity<Page<com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO>> getAllTrainingPlans(
             @RequestParam(required = false) String difficulty,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long goalId,
@@ -46,7 +46,7 @@ public class TrainingPlanController {
             @RequestParam(defaultValue = "10") int limit) {
         
         Pageable pageable = PageRequest.of(page, limit);
-        Page<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO> trainingPlans = trainingPlanService.getAllTrainingPlansForUser(
+        Page<com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO> trainingPlans = trainingPlanService.getAllTrainingPlansForUser(
                 difficulty, status, goalId, pageable);
         
         return ResponseEntity.ok(trainingPlans);
@@ -59,8 +59,8 @@ public class TrainingPlanController {
      * @return TrainingPlanResponseDTO với exercises array
      */
     @GetMapping("/{id}")
-    public ResponseEntity<com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO> getTrainingPlanById(@PathVariable Long id) {
-        com.example.fitchallenge.DTO.TrainingPlanDTO.TrainingPlanResponseDTO trainingPlan = trainingPlanService.getTrainingPlanByIdForUser(id);
+    public ResponseEntity<com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO> getTrainingPlanById(@PathVariable Long id) {
+        com.example.fitchallenge.dto.trainingplandto.TrainingPlanResponseDTO trainingPlan = trainingPlanService.getTrainingPlanByIdForUser(id);
         return ResponseEntity.ok(trainingPlan);
     }
 

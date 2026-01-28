@@ -1,14 +1,14 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.RewardRedemptionDTO.RewardRedemptionRequest;
-import com.example.fitchallenge.DTO.RewardRedemptionDTO.RewardRedemptionResponse;
-import com.example.fitchallenge.Entity.Reward;
-import com.example.fitchallenge.Entity.RewardRedemption;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.dto.rewardredemptiondto.RewardRedemptionRequest;
+import com.example.fitchallenge.dto.rewardredemptiondto.RewardRedemptionResponse;
+import com.example.fitchallenge.entity.Reward;
+import com.example.fitchallenge.entity.RewardRedemption;
+import com.example.fitchallenge.entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.RewardRedemptionRepository;
 import com.example.fitchallenge.repository.RewardRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.RewardRedemptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

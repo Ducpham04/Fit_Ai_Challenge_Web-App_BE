@@ -1,11 +1,11 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.BodyMetricHistoryDTO;
-import com.example.fitchallenge.Entity.BodyMetricHistory;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.dto.BodyMetricHistoryDTO;
+import com.example.fitchallenge.entity.BodyMetricHistory;
+import com.example.fitchallenge.entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.BodyMetricHistoryRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.BodyMetricHistoryService;
 import com.example.fitchallenge.utils.BodyMetricsCalculator;
 import lombok.RequiredArgsConstructor;

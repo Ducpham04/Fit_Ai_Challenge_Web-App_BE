@@ -1,18 +1,18 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.DailyTrainingLogDTO.DailyTrainingLogResponse;
-import com.example.fitchallenge.Entity.Challenges;
-import com.example.fitchallenge.Entity.DailyTrainingLog;
-import com.example.fitchallenge.Entity.InformationBodyUser;
-import com.example.fitchallenge.Entity.TrainingPlan;
-import com.example.fitchallenge.Entity.TrainingPlanDetail;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.dto.dailytraininglogdto.DailyTrainingLogResponse;
+import com.example.fitchallenge.entity.Challenges;
+import com.example.fitchallenge.entity.DailyTrainingLog;
+import com.example.fitchallenge.entity.InformationBodyUser;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.TrainingPlanDetail;
+import com.example.fitchallenge.entity.User;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.DailyTrainingLogRepository;
 import com.example.fitchallenge.repository.InformationBodyUserRepository;
 import com.example.fitchallenge.repository.TrainingPlanDetailRepository;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.repository.ChallengeRepository;
 import com.example.fitchallenge.service.DailyTrainingLogService;
 import com.example.fitchallenge.utils.CaloriesCalculator;

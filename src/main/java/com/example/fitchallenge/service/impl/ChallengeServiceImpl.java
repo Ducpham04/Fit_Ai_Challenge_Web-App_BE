@@ -1,15 +1,15 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.ChallengeDTO.ChallengeDTOPayload;
-import com.example.fitchallenge.DTO.ChallengeDTO.ChallengeResponseDTO;
-import com.example.fitchallenge.DTO.ChallengeDTO.ParticipantDTO;
-import com.example.fitchallenge.Entity.Challenges;
-import com.example.fitchallenge.Entity.UserChallenge;
+import com.example.fitchallenge.dto.challengedto.ChallengePayloadDTO;
+import com.example.fitchallenge.dto.challengedto.ChallengeResponseDTO;
+import com.example.fitchallenge.dto.challengedto.ParticipantDTO;
+import com.example.fitchallenge.entity.Challenges;
+import com.example.fitchallenge.entity.UserChallenge;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.ChallengeRepository;
 import com.example.fitchallenge.repository.GoalRepository;
 import com.example.fitchallenge.repository.UserChallengeRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.ChallengeService;
 import com.example.fitchallenge.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final UserRepository userRepository;
 
     @Override
-    public NotificationResponse createChallenge(ChallengeDTOPayload dto, MultipartFile video) {
+    public NotificationResponse createChallenge(ChallengePayloadDTO dto, MultipartFile video) {
         try {
             if (dto.getTitle() == null || dto.getTitle().trim().isEmpty()) {
                 return new NotificationResponse(false, "Challenge title cannot be empty");
@@ -93,7 +93,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     }
 
     @Override
-    public NotificationResponse updateChallenge(Long id, ChallengeDTOPayload dto,  MultipartFile video) {
+    public NotificationResponse updateChallenge(Long id, ChallengePayloadDTO dto,  MultipartFile video) {
         try {
             Challenges challenge = challengeRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Challenge not found"));
@@ -225,7 +225,7 @@ public class ChallengeServiceImpl implements ChallengeService {
             }
             
             // Create UserChallenge
-            com.example.fitchallenge.Entity.User user = userRepository.findById(userId)
+            com.example.fitchallenge.entity.User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
             
             UserChallenge userChallenge = UserChallenge.builder()

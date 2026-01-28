@@ -1,13 +1,13 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.UserTrainingDTO.UserRequestDTO;
-import com.example.fitchallenge.DTO.UserTrainingDTO.UserTrainingDTO;
-import com.example.fitchallenge.Entity.TrainingPlan;
-import com.example.fitchallenge.Entity.User;
-import com.example.fitchallenge.Entity.UserTraining;
+import com.example.fitchallenge.dto.usertrainingdto.UserRequestDTO;
+import com.example.fitchallenge.dto.usertrainingdto.UserTrainingDTO;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.UserTraining;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.TrainingPlanRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.repository.UserTrainingRepository;
 import com.example.fitchallenge.repository.PersonalizedPlanDetailRepository;
 import com.example.fitchallenge.repository.DailyTrainingLogRepository;
@@ -243,7 +243,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
 
             // 1. Xóa PersonalizedPlanDetail liên quan
             // Lấy tất cả TrainingPlanDetail của training plan này để biết các challenge nào thuộc plan này
-            List<com.example.fitchallenge.Entity.TrainingPlanDetail> templateDetails = 
+            List<com.example.fitchallenge.entity.TrainingPlanDetail> templateDetails = 
                     trainingPlanDetailRepository.findByTrainingPlan_TpId(trainingPlanId);
             
             // Lấy danh sách challenge IDs trong training plan này
@@ -253,11 +253,11 @@ public class UserTrainingServiceImpl implements UserTrainingService {
                     .collect(java.util.stream.Collectors.toSet());
             
             // Lấy tất cả PersonalizedPlanDetail của user
-            List<com.example.fitchallenge.Entity.PersonalizedPlanDetail> allPersonalizedDetails = 
+            List<com.example.fitchallenge.entity.PersonalizedPlanDetail> allPersonalizedDetails = 
                     personalizedPlanDetailRepository.findByUser_Id(userId);
             
             // Lọc chỉ những cái có challenge thuộc training plan này
-            List<com.example.fitchallenge.Entity.PersonalizedPlanDetail> personalizedDetailsToDelete = 
+            List<com.example.fitchallenge.entity.PersonalizedPlanDetail> personalizedDetailsToDelete = 
                     allPersonalizedDetails.stream()
                             .filter(ppd -> ppd.getChallenge() != null && 
                                     challengeIdsInPlan.contains(ppd.getChallenge().getId()))
@@ -267,7 +267,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
             System.out.println("✅ Deleted " + personalizedDetailsToDelete.size() + " personalized plan details");
 
             // 2. Xóa DailyTrainingLog liên quan
-            List<com.example.fitchallenge.Entity.DailyTrainingLog> dailyLogs = 
+            List<com.example.fitchallenge.entity.DailyTrainingLog> dailyLogs = 
                     dailyTrainingLogRepository.findByUser_IdAndTrainingPlan_TpId(userId, trainingPlanId);
             dailyTrainingLogRepository.deleteAll(dailyLogs);
             System.out.println("✅ Deleted " + dailyLogs.size() + " daily training logs");

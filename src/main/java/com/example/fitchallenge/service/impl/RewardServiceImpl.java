@@ -1,7 +1,7 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.DTO.RewardDTO.*;
-import com.example.fitchallenge.Entity.Reward;
+import com.example.fitchallenge.dto.rewardto.AdminRewardDTO;
+import com.example.fitchallenge.entity.Reward;
 import com.example.fitchallenge.config.NotificationResponse;
 import com.example.fitchallenge.repository.RewardRepository;
 import com.example.fitchallenge.service.FileStorageService;

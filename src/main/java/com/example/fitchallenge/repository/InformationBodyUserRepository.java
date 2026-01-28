@@ -1,6 +1,6 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.InformationBodyUser;
+import com.example.fitchallenge.entity.InformationBodyUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

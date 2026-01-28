@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.goalsDTO.goalsDTOpayload;
+import com.example.fitchallenge.dto.goalsdto.goalsDTOpayload;
 import com.example.fitchallenge.config.NotificationResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.RewardDTO.AdminRewardDTO;
+import com.example.fitchallenge.dto.rewardto.AdminRewardDTO;
 import com.example.fitchallenge.config.NotificationResponse;
 import org.springframework.web.multipart.MultipartFile;
 

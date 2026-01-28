@@ -1,9 +1,16 @@
 package com.example.fitchallenge.service.impl;
 
-import com.example.fitchallenge.Entity.*;
+import com.example.fitchallenge.entity.TrainingPlan;
+import com.example.fitchallenge.entity.TrainingPlanDetail;
+import com.example.fitchallenge.entity.UserChallenge;
+import com.example.fitchallenge.entity.User;
+import com.example.fitchallenge.entity.Role;
+import com.example.fitchallenge.entity.Goals;
+import com.example.fitchallenge.entity.DailyTrainingLog;
+import com.example.fitchallenge.entity.Challenges;
 import com.example.fitchallenge.repository.*;
 import com.example.fitchallenge.repository.GoalRepository;
-import com.example.fitchallenge.repository.User.UserRepository;
+import com.example.fitchallenge.repository.user.UserRepository;
 import com.example.fitchallenge.service.DataSeederService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

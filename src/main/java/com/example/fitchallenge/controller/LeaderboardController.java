@@ -1,6 +1,6 @@
 package com.example.fitchallenge.controller;
 
-import com.example.fitchallenge.DTO.LeaderboardDTO;
+import com.example.fitchallenge.dto.LeaderboardDTO;
 import com.example.fitchallenge.service.LeaderboardService;
 import com.example.fitchallenge.service.UserService;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.example.fitchallenge.repository;
 
-import com.example.fitchallenge.Entity.HealthProfile;
-import com.example.fitchallenge.Entity.User;
+import com.example.fitchallenge.entity.HealthProfile;
+import com.example.fitchallenge.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

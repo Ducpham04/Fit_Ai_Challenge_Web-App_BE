@@ -2,7 +2,7 @@ package com.example.fitchallenge.service;
 
 
 
-import com.example.fitchallenge.DTO.MealFoodDTO.MealFoodRequest;
+import com.example.fitchallenge.dto.mealfooddto.MealFoodRequest;
 import com.example.fitchallenge.config.NotificationResponse;
 
 public interface MealFoodService {

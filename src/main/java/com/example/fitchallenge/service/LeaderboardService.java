@@ -1,6 +1,6 @@
 package com.example.fitchallenge.service;
 
-import com.example.fitchallenge.DTO.LeaderboardDTO;
+import com.example.fitchallenge.dto.LeaderboardDTO;
 
 import java.util.List;
 
